@@ -1,0 +1,271 @@
+.slot-config-page {
+    padding: 2.5rem;
+    padding-bottom: 5rem;
+    background-color: #f8fafc;
+    box-sizing: border-box;
+}
+
+.slot-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.title-group h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+}
+
+.title-group p {
+    color: #6b7280;
+    margin: 0;
+    font-size: 0.9375rem;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.reset-btn {
+    background: white;
+    border: 1px solid #e5e7eb;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+}
+
+.save-btn {
+    background: #39df79;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(57, 223, 121, 0.2);
+}
+
+.config-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* Global Rules Card */
+.global-rules-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f3f4f6;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.header-icon {
+    color: #39df79;
+    font-size: 1.1rem;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.rules-content {
+    display: flex;
+    gap: 2.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.rule-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #9ca3af;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.duration-options {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.duration-btn {
+    background: white;
+    border: 1px solid #e5e7eb;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.duration-btn.active {
+    border-color: #39df79;
+    background: #f0fdf4;
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.concurrent-input-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.concurrent-input-group input {
+    width: 60px;
+    padding: 0.6rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+    text-align: center;
+    font-weight: 700;
+    color: #111827;
+}
+
+.concurrent-input-group span {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.auto-blocking-banner {
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.banner-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: #92400e;
+}
+
+.banner-icon {
+    color: #d97706;
+}
+
+.manage-exceptions {
+    background: transparent;
+    border: none;
+    color: #d97706;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* WhatsApp Buffer Card */
+.whatsapp-buffer-card {
+    background: #39df79;
+    border-radius: 12px;
+    padding: 2rem;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 10px 25px rgba(57, 223, 121, 0.2);
+}
+
+.buffer-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+}
+
+.buffer-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.buffer-value-display {
+    margin: 2rem 0;
+}
+
+.buffer-value-display .value {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-right: 0.5rem;
+}
+
+.buffer-value-display .unit {
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+.buffer-slider {
+    width: 100%;
+    accent-color: #ffffff;
+    cursor: pointer;
+}
+
+/* Weekly Schedule Section */
+.weekly-schedule-section {
+    margin-top: 2rem;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.section-icon {
+    color: #111827;
+    font-size: 1.2rem;
+}
+
+.section-title h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+@media (max-width: 1280px) {
+    .schedule-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .config-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .schedule-grid {
+        grid-template-columns: 1fr;
+    }
+}

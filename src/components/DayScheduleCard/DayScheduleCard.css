@@ -1,0 +1,166 @@
+.day-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f3f4f6;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+.day-card.disabled {
+    background: #fcfcfc;
+    border-color: #f0f0f0;
+}
+
+.day-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.day-card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.day-card.disabled .day-card-header h3 {
+    color: #9ca3af;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.closed-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: #fffbeb;
+    color: #d97706;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.day-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.slot-item {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.time-input-group {
+    flex: 1;
+}
+
+.input-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #9ca3af;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+.time-picker {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #374151;
+    font-weight: 500;
+}
+
+.clock-icon {
+    color: #9ca3af;
+    font-size: 0.8rem;
+}
+
+.slot-divider {
+    padding-bottom: 0.75rem;
+    color: #d1d5db;
+}
+
+.add-shift-btn {
+    margin-top: auto;
+    background: #f9fafb;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.add-shift-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #374151;
+}
+
+.closed-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.closed-icon-container {
+    color: #d1d5db;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.office-closed-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.weekend-text {
+    font-size: 0.85rem;
+    font-style: italic;
+    font-weight: 400;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+.enable-weekend-btn {
+    margin-top: 1.5rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.enable-weekend-btn:hover {
+    background: #f9fafb;
+}

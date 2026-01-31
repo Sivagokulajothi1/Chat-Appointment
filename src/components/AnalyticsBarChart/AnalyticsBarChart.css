@@ -1,0 +1,98 @@
+.analytics-bar-chart {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f3f4f6;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.header-left h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.header-left p {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.total-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #39df79;
+}
+
+.total-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #9ca3af;
+}
+
+.bar-container {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding-bottom: 1rem;
+  min-height: 200px;
+}
+
+.bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.bar-wrapper {
+  width: 100%;
+  max-width: 120px;
+  height: 180px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+}
+
+.bar-fill {
+  width: 80%;
+  border-radius: 6px 6px 0 0;
+  position: relative;
+  transition: height 0.3s ease;
+}
+
+.bar-value {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.bar-label {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+}

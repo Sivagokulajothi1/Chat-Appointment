@@ -1,0 +1,171 @@
+.appointment-monitor {
+    background: #ffffff;
+    border-radius: 12px;
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.monitor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.monitor-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.total-badge {
+    font-size: 0.75rem;
+    background: #e1fdf0;
+    color: #39df79;
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #e5e7eb;
+    background: white;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.table-container {
+    overflow-x: auto;
+    max-height: 400px; /* Enable scrolling */
+    overflow-y: auto;
+}
+
+.monitor-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.monitor-table th {
+    padding: 1rem 1.5rem;
+    background: #f9fafb;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.monitor-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+.patient-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.patient-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #39df79;
+}
+
+.patient-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.patient-phone {
+    font-size: 0.8125rem;
+    color: #6b7280;
+}
+
+.doctor-name {
+    font-size: 0.9375rem;
+    color: #374151;
+}
+
+.status-chip {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-booked { background: #e8fbf1; color: #39df79; }
+.status-confirmed { background: #e8f7ee; color: #16a34a; }
+.status-cancelled { background: #fdecec; color: #dc2626; }
+.status-rescheduled { background: #f3e8ff; color: #7c3aed; }
+
+.more-btn {
+    border: none;
+    background: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.more-btn:hover {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+/* Custom Scrollbar */
+.table-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
+}

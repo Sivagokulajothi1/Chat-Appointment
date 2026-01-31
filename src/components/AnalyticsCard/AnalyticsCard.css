@@ -1,0 +1,56 @@
+.analytics-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f3f4f6;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 200px;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.card-icon {
+  font-size: 1.1rem;
+}
+
+.card-bottom {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.card-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.card-change {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.card-change.positive {
+  color: #16a34a;
+}
+
+.card-change.negative {
+  color: #dc2626;
+}

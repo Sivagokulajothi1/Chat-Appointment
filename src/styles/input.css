@@ -1,0 +1,109 @@
+/* ===== INPUT GROUP ===== */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+/* ===== LABEL ===== */
+.input-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* ===== INPUT FIELD ===== */
+.custom-input {
+  width: 100%;
+  height: 20px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #0000007a;
+  background-color: #ffffff;        /* IMPORTANT */
+  border: 1.5px solid #0000007a;      /* IMPORTANT */
+  border-radius: 06px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: 
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* ===== PLACEHOLDER ===== */
+.custom-input::placeholder {
+  color: #6b7280;
+}
+
+/* ===== FOCUS STATE ===== */
+.custom-input:focus {
+  background-color: #ffffff;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+/* ===== UNFOCUS STATE (EXPLICIT) ===== */
+.custom-input:not(:focus) {
+  background-color: #ffffff;
+  border-color: #0000007a;
+}
+
+/* ===== DISABLED ===== */
+.custom-input:disabled {
+  background-color: #f1f5f9;
+  color: #9ca3af;
+  border-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* ===== AUTOFILL FIX (CHROME) ===== */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #000000;
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ===== ADDITIONS FOR PASSWORD TOGGLE (DO NOT CHANGE ABOVE) ===== */
+.label-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px !important;
+  transition: color 0.2s;
+  z-index: 2;
+  box-shadow: none !important;
+  transform: none !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: unset !important;
+}
+
+.password-toggle:hover {
+  color: #22c55e;
+}
+
+.custom-input.has-icon {
+  padding-right: 45px;
+}

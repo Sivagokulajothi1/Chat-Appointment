@@ -1,0 +1,32 @@
+.main-layout {
+  display: flex;
+  height: 100vh;
+  background-color: #f8fafc;
+  overflow: hidden;
+  width: 100vw;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .main-layout {
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .main-content {
+    margin-top: 70px;
+    padding: 0.5rem;
+    height: calc(100vh - 70px);
+  }
+}

@@ -1,0 +1,287 @@
+.users-page {
+  padding: 2.5rem;
+  padding-bottom: 5rem;
+  background-color: #f8fafc;
+  box-sizing: border-box;
+}
+
+.page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.title-section h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.title-section p {
+  color: #6b7280;
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9375rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.count-badge {
+  background: #E8FBF1;
+  color: #39DF79;
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.add-btn {
+  background: #39df79;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 12px rgba(57, 223, 121, 0.2);
+  transition: all 0.2s;
+}
+
+.add-btn:hover {
+  background: #2ec56b;
+  transform: translateY(-1px);
+}
+
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  font-size: 0.9375rem;
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #39df79;
+}
+
+.action-group {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.filter-btn, .export-btn-gray {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  color: #4b5563;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.table-wrapper-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f3f4f6;
+  overflow: hidden;
+}
+
+.user-info-cell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+.user-name-text {
+  font-weight: 600;
+  color: #111827;
+}
+
+.role-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.role-badge.doctor {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.role-badge.receptionist {
+  background: #fdf2f8;
+  color: #db2777;
+}
+
+.role-badge.admin {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-dot.active {
+    background: #16a34a;
+}
+
+.status-dot.inactive {
+    background: #9ca3af;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.icon-btn-small {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-btn-small:hover {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+/* Modal Form Styles */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkbox-label {
+    flex-direction: row !important;
+    align-items: center;
+    gap: 0.75rem !important;
+    cursor: pointer;
+    font-weight: 500 !important;
+}
+
+.permissions-section {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #f1f5f9;
+}
+
+.permissions-title {
+    margin: 0 0 1rem 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.permissions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.permissions-list label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+    cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn-primary {
+  background: #39df79;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: white;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
