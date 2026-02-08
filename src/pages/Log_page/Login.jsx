@@ -3,11 +3,13 @@ import { useAuth } from "../../context/AuthContext";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input";
 import "./Login.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaHeartbeat } from "react-icons/fa";
+import { adminLogin } from "../../services/auth.service";
+import { useToast } from "../../context/ToastContext";
 
 const Login = () => {
-  const { login } = useAuth();
+  const { setSession } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,13 +17,48 @@ const Login = () => {
 
   const isDisabled = !email || !password;
 
+  const { showToast } = useToast();
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      if (!email || !password) {
+        showToast("Email and Password are required", "error");
+        return;
+      }
+
+      const res = await adminLogin({
+        email,
+        password,
+      });
+
+      // expected backend response
+      const { token, user } = res.data;
+
+      // store auth data
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      showToast("Login successful", "success");
+
+      // go to dashboard (MainLayout will load automatically)
+      setSession(token, user);
+      navigate("/dashboard");
+    } catch (err) {
+      showToast(
+        err?.response?.data?.message || "Invalid email or password",
+        "error"
+      );
+    }
+  };
+
   return (
     <div className="login-container">
       <div className="login-card">
         <div className="brand-section">
           <div className="brand-logo">
             <FaHeartbeat className="brand-icon" />
-            Mithin <span>Clinic</span> 
+            Mithin <span>Clinic</span>
           </div>
           <p className="brand-subtitle">ADMIN DASHBOARD</p>
         </div>
@@ -57,7 +94,7 @@ const Login = () => {
 
         <Button
           title="Sign in"
-          onClick={login}
+          onClick={handleLogin}
           disabled={isDisabled}
           fullWidth
         />
