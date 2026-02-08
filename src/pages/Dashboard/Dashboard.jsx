@@ -97,7 +97,7 @@ const Dashboard = () => {
               icon={FaCheck}
               text="A Vinothini confirmed appointment"
               time="2 minutes ago"
-              bgColor="#e8f7ee"
+              bgColor="#b7f7d1"
               iconColor="#16a34a"
             />
 
@@ -105,16 +105,16 @@ const Dashboard = () => {
               icon={FaTimes}
               text="Siva cancelled slot with Dr. Mithun"
               time="15 minutes ago"
-              bgColor="#fdecec"
-              iconColor="#dc2626"
+              bgColor="#eca8a8"
+              iconColor="#f10101"
             />
 
             <ActivityItem
               icon={FaClock}
               text="Sarvesh.S rescheduled to 4 PM"
               time="1 hour ago"
-              bgColor="#f3e8ff"
-              iconColor="#7c3aed"
+              bgColor="#aa63f7"
+              iconColor="#1000f0"
             />
           </div>
 

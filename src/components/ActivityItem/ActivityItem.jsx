@@ -1,9 +1,9 @@
 import "./ActivityItem.css";
 
-const ActivityItem = ({ icon: Icon, text, time }) => {
+const ActivityItem = ({ icon: Icon, text, time, bgColor, iconColor, }) => {
   return (
-    <div className="activity-item">
-      <div className="activity-icon">
+    <div className="activity-item"  style={{  }}>
+      <div className="activity-icon" style={{color: iconColor,backgroundColor: bgColor }} >
         {Icon && <Icon />}
       </div>
 

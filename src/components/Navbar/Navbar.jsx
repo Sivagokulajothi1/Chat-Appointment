@@ -13,7 +13,8 @@ import {
     FaSignOutAlt,
     FaChartLine,
     FaFileDownload,
-    FaUserInjured
+    FaUserInjured,
+    FaUserFriends
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import CustomModal from '../CustomModal/CustomModal';
@@ -30,6 +31,7 @@ const Navbar = () => {
         const path = location.pathname;
         if (path === '/dashboard') return 'Dashboard';
         if (path.includes('/doctors')) return 'Doctors';
+         if (path.includes('/doctors')) return 'Patients';
         if (path.includes('/slots')) return 'Slot Config';
         if (path.includes('/appointments')) return 'Appointments';
         if (path.includes('/whatsapp')) return 'WhatsApp';
@@ -45,6 +47,7 @@ const Navbar = () => {
         { id: 'dashboard', path: '/dashboard', label: 'Dashboard', icon: <BsGridFill /> },
         { id: 'appointments', path: '/appointments', label: 'Appointments', icon: <FaCalendarAlt /> },
         { id: 'doctors', path: '/doctors', label: 'Doctors', icon: <FaUserInjured /> },
+        { id: 'patients', path: '/patients', label: 'Patients', icon: <FaUserFriends/> },
         { id: 'analytics', path: '/analytics', label: 'Analytics', icon: <FaChartLine /> },
         { id: 'slots', path: '/slots', label: 'Slot Config', icon: <FaClock /> },
         { id: 'whatsapp', path: '/whatsapp', label: 'WhatsApp', icon: <FaWhatsapp /> },

@@ -13,6 +13,7 @@ import WhatsApp from "../pages/WhatsApp/WhatsApp";
 import Users from "../pages/Users/Users";
 import Settings from "../pages/Settings/Settings";
 import Analytics from "../pages/Analytics/Analytics";
+import Patient from "../pages/patient/patient";
 
 const AppRoutes = () => {
   const { isLoggedIn } = useAuth();
@@ -20,6 +21,7 @@ const AppRoutes = () => {
   const protectedRoutes = [
     { path: "/dashboard", element: <Dashboard /> },
     { path: "/doctors", element: <Doctors /> },
+    { path: "/patients", element: <Patient /> },
     { path: "/slots", element: <Slots /> },
     { path: "/appointments", element: <Appointments /> },
     { path: "/whatsapp", element: <WhatsApp /> },
