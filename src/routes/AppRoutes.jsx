@@ -5,6 +5,7 @@ import AuthLayout from "../layout/Authlayout";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import LoginPage from "../pages/Log_page/Login";
 import SignUp from "../pages/Log_page/signup";
+import OtpScreen from "../pages/Log_page/otp";
 import MainLayout from "../layout/MainLayout/MainLayout";
 import Doctors from "../pages/Doctors/Doctors";
 import Slots from "../pages/Slots/Slots";
@@ -32,7 +33,7 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Login Route */}
+      {/* ================= AUTH ROUTES ================= */}
       <Route
         path="/"
         element={
@@ -41,10 +42,11 @@ const AppRoutes = () => {
               <LoginPage />
             </AuthLayout>
           ) : (
-            <Navigate to="/dashboard" />
+            <Navigate to="/dashboard" replace />
           )
         }
       />
+
       <Route
         path="/signup"
         element={
@@ -53,12 +55,25 @@ const AppRoutes = () => {
               <SignUp />
             </AuthLayout>
           ) : (
-            <Navigate to="/dashboard" />
+            <Navigate to="/dashboard" replace />
           )
         }
       />
 
-      {/* Protected Routes */}
+      <Route
+        path="/otppage"
+        element={
+          !isLoggedIn ? (
+            <AuthLayout>
+              <OtpScreen />
+            </AuthLayout>
+          ) : (
+            <Navigate to="/dashboard" replace />
+          )
+        }
+      />
+
+      {/* ================= PROTECTED ROUTES ================= */}
       {protectedRoutes.map((route) => (
         <Route
           key={route.path}
@@ -69,13 +84,17 @@ const AppRoutes = () => {
                 {route.element}
               </MainLayout>
             ) : (
-              <Navigate to="/" />
+              <Navigate to="/" replace />
             )
           }
         />
       ))}
+
+      {/* ================= FALLBACK ================= */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
+
 };
 
 export default AppRoutes;

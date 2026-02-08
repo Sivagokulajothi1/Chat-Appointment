@@ -5,9 +5,15 @@ import Input from "../../components/Input";
 import "./Login.css";
 import { Link } from "react-router-dom";
 import { FaHeartbeat } from "react-icons/fa";
+import { adminSignup } from "../../services/auth.service";
+import { useToast } from "../../context/ToastContext";
+import { useNavigate } from "react-router-dom";
+
 
 const SignUp = () => {
-  const { signup } = useAuth();
+  // const { signup } = useAuth();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +21,40 @@ const SignUp = () => {
   const [remember, setRemember] = useState(false);
 
   const isDisabled = !email || !password || password !== confirmPassword;
+
+  const handleSignup = async () => {
+    try {
+
+      if (!email || !password || !confirmPassword) {
+        showToast("Email, Password, Confirm Password required", "error")
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showToast("Password and Confirm Password not match", "error");
+        return;
+      }
+
+      if (!remember) {
+        showToast("Please accept Terms and Conditions", "error");
+        return;
+      }
+
+      await adminSignup({
+        email,
+        password,
+        confirmpassword: confirmPassword,
+        role: "ADMIN",
+      });
+
+      localStorage.setItem("pendingEmail", email);
+
+       navigate("/otppage");
+    } catch (err) {
+      showToast(err?.response?.data?.message || "Signup failed", "error");
+    }
+  };
+
 
   return (
     <div className="login-container">
@@ -65,7 +105,7 @@ const SignUp = () => {
 
         <Button
           title="Create Account"
-          onClick={signup}
+          onClick={handleSignup}
           disabled={isDisabled}
           fullWidth
         />
