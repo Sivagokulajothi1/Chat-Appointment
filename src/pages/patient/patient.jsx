@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { FaPlus, FaSearch, FaFilter, FaEdit, FaTrash, FaDownload } from 'react-icons/fa';
 import CustomTable from '../../components/CustomTable/CustomTable';
-import CustomModal from '../../components/CustomModal/CustomModal';
+import CustomModal  from '../../components/CustomModal/CustomModal';
 import './patient.css';
 
 const Patient = () => {
     const [patient, setPatient] = useState([
-        { id: 1, name: 'Dr.Kaviya',Gender:"Female",dept: 'Cardiology', time: '09:00 - 17:00',initials: 'SC', color: '#eef2ff' },
-        { id: 2, name: 'Dr. Mithin', Gender:"Male",dept: 'Pediatrics', time: '08:00 - 16:00',initials: 'JW', color: '#e0f2fe' },
-        { id: 3, name: 'Dr. Gokula kirshana',Gender:"Male", dept: 'Neurology', time: '10:00 - 18:00',initials: 'ER', color: '#fef3c7' },
+        { id: 1, name: 'Kavitha', dept: 'Cardiology', time: '09:00 - 17:00', slot: '15 min', status: 'ACTIVE', initials: 'SC', color: '#eef2ff' },
+        { id: 2, name: ' Mithin', dept: 'Pediatrics', time: '08:00 - 16:00', slot: '30 min', status: 'ACTIVE', initials: 'JW', color: '#e0f2fe' },
+        { id: 3, name: ' Gokula kirshana', dept: 'Neurology', time: '10:00 - 18:00', slot: '20 min', status: 'ON LEAVE', initials: 'ER', color: '#fef3c7' },
     
     ]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [editingPatient, setEditingDoctor] = useState(null);
+    const [editingPatient, setEditingPatient] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         dept: 'Cardiology',
@@ -23,21 +23,21 @@ const Patient = () => {
         slot: '15 min'
     });
 
-    const headers = ['PatientNAME', 'DEPARTMENT','Gender','MEETING TIME', 'SLOT', 'STATUS', 'ACTIONS'];
+    const headers = ['PATIENT NAME', 'DEPARTMENT', 'WORKING TIME', 'SLOT', 'STATUS', 'ACTIONS'];
 
-    const handleOpenModal = (Patient = null) => {
-        if (Patient) {
-            setEditingDoctor(Patient);
-            const [start, end] = Patient.time.split(' - ');
+    const handleOpenModal = (patient = null) => {
+        if (patient) {
+            setEditingPatient(patient);
+            const [start, end] = patient.time.split(' - ');
             setFormData({
-                name: Patient.name,
-                dept: Patient.dept,
+                name: patient.name,
+                dept: patient.dept,
                 startTime: start,
                 endTime: end,
-                slot: Patient.slot
+                slot: patient.slot
             });
         } else {
-            setEditingDoctor(null);
+            setEditingPatient(null);
             setFormData({
                 name: '',
                 dept: 'Cardiology',
@@ -51,12 +51,12 @@ const Patient = () => {
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setEditingDoctor(null);
+        setEditingPatient(null);
     };
 
     const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this doctor?')) {
-            setPatient(patient.filter(d => d.id !== id));
+        if (window.confirm('Are you sure you want to delete this patient?')) {
+            setPatient(patient.filter(p => p.id !== id));
         }
     };
 
@@ -67,16 +67,16 @@ const Patient = () => {
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
         if (editingPatient) {
-            setPatient(patient.map(d => d.id === editingPatient.id ? {
-                ...d,
+            setPatient(patient.map(p => p.id === editingPatient.id ? {
+                ...p,
                 name: formData.name,
                 dept: formData.dept,
                 time: `${formData.startTime} - ${formData.endTime}`,
                 slot: formData.slot,
                 initials: initials
-            } : d));
+            } : p));
         } else {
-            const newDoctor = {
+            const newPatient = {
                 id: Date.now(),
                 name: formData.name,
                 dept: formData.dept,
@@ -86,12 +86,12 @@ const Patient = () => {
                 initials: initials,
                 color: randomColor
             };
-            setPatient([...patient, newDoctor]);
+            setPatient([...patient, newPatient]);
         }
         handleCloseModal();
     };
 
-    const filteredDoctors = patient.filter(d =>
+    const filteredPatient = patient.filter(d =>
         d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         d.dept.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -102,57 +102,54 @@ const Patient = () => {
 
     const handleExport = () => {
         const csvContent = [
-            ['Name', 'Department','Gender','Working Hours', 'Slot Duration', 'Status'],
-            ...patient.map(d => [d.name,d.Gender, d.dept, d.time, d.slot, d.status])
+            ['Name', 'Department', 'Working Hours', 'Slot Duration', 'Status'],
+            ...patient.map(p => [p.name, p.dept, p.time, p.slot, p.status])
         ].map(row => row.join(',')).join('\n');
 
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `doctors_export_${new Date().toISOString().split('T')[0]}.csv`;
+        a.download = `patient_export_${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
         window.URL.revokeObjectURL(url);
     };
 
-    const renderRow = (doctor) => (
-        <tr key={doctor.id}>
+    const renderRow = (patient) => (
+        <tr key={patient.id}>
             <td>
-                <div className="doctor-info-cell">
-                    <div className="doctor-avatar" style={{ backgroundColor: doctor.color }}>
-                        {doctor.initials}
+                <div className="patient-info-cell">
+                    <div className="patient-avatar" style={{ backgroundColor: patient.color }}>
+                        {patient.initials}
                     </div>
-                    <span className="doctor-name-text">{doctor.name}</span>
+                    <span className="patient-name-text">{patient.name}</span>
                 </div>
             </td>
             <td>
-                <span className="dept-tag">{doctor.dept}</span>
+                <span className="dept-tag">{patient.dept}</span>
             </td>
+            <td>{patient.time}</td>
+            <td>{patient.slot}</td>
             <td>
-                <span className="dept-tag">{doctor.Gender}</span>
-            </td>
-            <td>{doctor.time}</td>
-            <td>{doctor.slot}</td>
-            <td>
-                <span className={`status-pill ${doctor.status.toLowerCase().replace(' ', '-')}`}>
-                    {doctor.status}
+                <span className={`status-pill ${patient.status.toLowerCase().replace(' ', '-')}`}>
+                    {patient.status}
                 </span>
             </td>
             <td>
                 <div className="action-buttons">
-                    <button className="icon-btn-small" title="Edit" onClick={() => handleOpenModal(doctor)}><FaEdit /></button>
-                    <button className="icon-btn-small delete" title="Delete" onClick={() => handleDelete(doctor.id)}><FaTrash /></button>
+                    <button className="icon-btn-small" title="Edit" onClick={() => handleOpenModal(patient)}><FaEdit /></button>
+                    <button className="icon-btn-small delete" title="Delete" onClick={() => handleDelete(patient.id)}><FaTrash /></button>
                 </div>
             </td>
         </tr>
     );
 
     return (
-        <div className="doctors-page">
+        <div className="patient-page">
             <div className="page-header-row">
                 <div className="title-section">
-                    <h1>Patient Management</h1>
-                    <p>Manage healthcare professionals and their schedules <span className="count-badge">{patient.length} TOTAL DOCTORS</span></p>
+                     <h1>Patient Management</h1>
+                     <p>Manage healthcare professionals and their schedules <span className="count-badge">{patient.length} TOTAL PATIENT</span></p>
                 </div>
                 <button className="add-btn" onClick={() => handleOpenModal()}>
                     <FaPlus /> Add New Patient
@@ -180,20 +177,20 @@ const Patient = () => {
             </div>
 
             <div className="table-wrapper-card">
-                <CustomTable headers={headers} data={filteredDoctors} renderRow={renderRow} />
+                <CustomTable headers={headers} data={filteredPatient} renderRow={renderRow} />
             </div>
 
             <CustomModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                title={editingPatient ? "Edit Doctor" : "Add New Doctor"}
+                title={editingPatient ? "Edit Patient" : "Add New Patient"}
             >
                 <form className="modal-form" onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label>Full Name</label>
                         <input
                             type="text"
-                            placeholder="Enter doctor's full name"
+                            placeholder="Enter patient's full name"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             required
@@ -248,7 +245,7 @@ const Patient = () => {
                     <div className="form-actions">
                         <button type="button" className="btn-secondary" onClick={handleCloseModal}>Cancel</button>
                         <button type="submit" className="btn-primary">
-                            {editingPatient ? "Update Patients" : "Save Patient"}
+                            {editingPatient ? "Update Patient" : "Save Patient"}
                         </button>
                     </div>
                 </form>
@@ -258,5 +255,3 @@ const Patient = () => {
 };
 
 export default Patient;
-
-

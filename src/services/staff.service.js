@@ -1,6 +1,13 @@
 import api from "./api";
 
-export const getStaff = () => api.get("/staff");
-export const createStaff = (payload) => api.post("/staff", payload);
-export const updateStaff = (id, payload) => api.put(`/staff/${id}`, payload);
-export const deleteStaff = (id) => api.delete(`/staff/${id}`);
+export const getStaff = async () => {
+  const response = await api.get("/staff");
+  return response.data;
+}; 
+export const createStaff = (payload) => api.post("/staff/create", payload);
+export const updateStaff = async (id, data) => {
+  const response = await api.put(`/staff/${id}`, data);
+  return response.data;
+};
+
+export const deleteStaff = (id) => api.delete(`/staff/delete/${id}`);

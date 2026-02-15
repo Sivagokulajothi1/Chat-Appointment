@@ -1,0 +1,120 @@
+.filter-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Button */
+.filter-btn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-btn:hover {
+  background: #f8fafc;
+}
+
+/* Popup */
+.filter-popup {
+  position: absolute;
+  top: 50px;  /* 👈 appears below button */
+  right: 0;
+  width: 320px;
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
+  padding: 15px;
+  z-index: 1000;
+  animation: fadeDown 0.2s ease;
+}
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.filter-header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.close-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+.field label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.clear,
+.done {
+  flex: 1;
+  height: 38px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.clear {
+  background: #f1f5f9;
+}
+
+.done {
+  background: #22c55e;
+  color: white;
+}
