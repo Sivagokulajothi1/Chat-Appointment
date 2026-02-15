@@ -1,0 +1,38 @@
+/* Container Grid */
+.details-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 15px;
+}
+
+/* Each Row */
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: #f9fafb;
+  border-radius: 10px;
+  transition: 0.2s ease;
+}
+
+.detail-row:hover {
+  background: #f1f5f9;
+}
+
+/* Label */
+.detail-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Value */
+.detail-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: right;
+  max-width: 60%;
+  word-break: break-word;
+}

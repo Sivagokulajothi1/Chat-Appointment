@@ -95,11 +95,12 @@
 }
 
 .action-group {
-    display: flex;
-    gap: 0.75rem;
+  display: flex;
+  gap: 0.75rem;
 }
 
-.filter-btn, .export-btn-gray {
+.filter-btn,
+.export-btn-gray {
   background: white;
   border: 1px solid #e5e7eb;
   padding: 0.75rem 1.25rem;
@@ -173,23 +174,23 @@
 }
 
 .status-indicator {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
 
 .status-dot.active {
-    background: #16a34a;
+  background: #16a34a;
 }
 
 .status-dot.inactive {
-    background: #9ca3af;
+  background: #9ca3af;
 }
 
 .action-buttons {
@@ -226,43 +227,43 @@
 }
 
 .checkbox-label {
-    flex-direction: row !important;
-    align-items: center;
-    gap: 0.75rem !important;
-    cursor: pointer;
-    font-weight: 500 !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.75rem !important;
+  cursor: pointer;
+  font-weight: 500 !important;
 }
 
 .permissions-section {
-    background: #f8fafc;
-    padding: 1rem;
-    border-radius: 10px;
-    border: 1px solid #f1f5f9;
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
 }
 
 .permissions-title {
-    margin: 0 0 1rem 0;
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: #475569;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .permissions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .permissions-list label {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.875rem;
-    color: #4b5563;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+  cursor: pointer;
 }
 
 .form-actions {
@@ -292,10 +293,101 @@
   cursor: pointer;
 }
 
-.upload-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-.img-preview { display:flex; align-items:center; gap:10px; }
-.img-preview img { width:64px; height:64px; border-radius:10px; object-fit:cover; border:1px solid #ddd; }
-.remove-img { padding:6px 10px; border:1px solid #ddd; background:#fff; cursor:pointer; border-radius:8px; }
-.radio-group { display:flex; gap:14px; flex-wrap:wrap; }
-.radio { display:flex; gap:8px; align-items:center; }
-.hint { display:block; margin-top:6px; opacity:.7; font-size:12px; }
+.staff-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.staff-avatar-large {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #6366f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 26px;
+}
+
+.staff-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.details-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border-radius: 10px;
+}
+
+.detail-label {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.detail-value {
+  font-weight: 700;
+  color: #111827;
+}
+
+
+.upload-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.img-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.img-preview img {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+}
+
+.remove-img {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.radio-group {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.radio {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hint {
+  display: block;
+  margin-top: 6px;
+  opacity: .7;
+  font-size: 12px;
+}

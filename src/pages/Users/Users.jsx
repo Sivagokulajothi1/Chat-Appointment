@@ -8,6 +8,7 @@ import { createStaff, deleteStaff, getStaff, updateStaff } from '../../services/
 import { useToast } from '../../context/ToastContext';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import Filter from '../../components/Filter/Filter';
+import Detail from '../../components/details';
 
 const Users = () => {
     const { showToast } = useToast();
@@ -15,7 +16,8 @@ const Users = () => {
     const [users, setUsers] = useState([]);
     const [showFilter, setShowFilter] = useState(false);
     const [filteredUsers, setFilteredUsers] = useState(users);
-
+    const [viewOpen, setViewOpen] = useState(false);
+    const [viewUser, setViewUser] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
@@ -46,6 +48,32 @@ const Users = () => {
         fetchusers();
     }, []);
 
+    useEffect(() => {
+        const q = searchQuery.trim().toLowerCase();
+
+        if (!q) {
+            setFilteredUsers(users);
+            return;
+        }
+
+        const filtered = users.filter((u) => {
+            const name = (u?.name ?? "").toLowerCase();
+            const email = (u?.email ?? "").toLowerCase();
+            const role = (u?.role ?? "").toLowerCase();
+
+            // if your API uses these names:
+            const parent = (u?.Parents_Name ?? u?.parent_name ?? "").toLowerCase();
+
+            return (
+                name.includes(q) ||
+                email.includes(q) ||
+                role.includes(q) ||
+                parent.includes(q)
+            );
+        });
+
+        setFilteredUsers(filtered);
+    }, [users, searchQuery]);
 
     const headers = ['NAME', 'EMAIL', 'ROLE', 'STATUS', 'ACTIONS'];
 
@@ -64,7 +92,8 @@ const Users = () => {
                 work_exprince: user.Work_Experience,
                 Qualification: user.Qualification,
                 Specification: user.Specification,
-                gender: user.Gender
+                gender: user.Gender,
+                Profile_image: user?.Profile_image ?? ""
             });
         } else {
             setEditingUser(null);
@@ -90,6 +119,15 @@ const Users = () => {
         setDeleteDialog(true);
     };
 
+    const openView = (user) => {
+        setViewUser(user);
+        setViewOpen(true);
+    };
+
+    const closeView = () => {
+        setViewOpen(false);
+        setViewUser(null);
+    };
     const confirmDelete = async () => {
         try {
             await deleteStaff(selectedId);
@@ -197,37 +235,42 @@ const Users = () => {
     };
 
     const renderRow = (user) => {
-        const status = user.is_active ? "Active" : "Inactive";
-        const initials = user.name
+        const status = user?.is_active ? "Active" : "Inactive";
+
+        const initials = user?.name
             ? user.name.split(" ").map(n => n[0]).join("").toUpperCase()
             : "";
 
-        const color = "#6366f1"; // default color
+        const color = "#6366f1";
 
         return (
-            <tr key={user.id}>
+            <tr
+                key={user?.id}
+                onDoubleClick={() => openView(user)}   // 👈 DOUBLE CLICK
+                style={{ cursor: "pointer" }}
+            >
                 <td>
                     <div className="user-info-cell">
                         <div className="user-avatar" style={{ backgroundColor: color }}>
-                            {user.Profile_image ? (
+                            {user?.Profile_image ? (
                                 <img
                                     src={user.Profile_image}
-                                    alt={user.name}
+                                    alt={user?.name}
                                     className="avatar-img"
                                 />
                             ) : (
                                 <span>{initials}</span>
                             )}
                         </div>
-                        <span className="user-name-text">{user.name}</span>
+                        <span className="user-name-text">{user?.name || "-"}</span>
                     </div>
                 </td>
 
-                <td>{user.email}</td>
+                <td>{user?.email || "-"}</td>
 
                 <td>
-                    <span className={`role-badge ${user.role?.toLowerCase()}`}>
-                        {user.role}
+                    <span className={`role-badge ${(user?.role || "").toLowerCase()}`}>
+                        {user?.role || "-"}
                     </span>
                 </td>
 
@@ -240,10 +283,23 @@ const Users = () => {
 
                 <td>
                     <div className="action-buttons">
-                        <button className="icon-btn-small" title="Edit" onClick={() => handleOpenModal(user)}>
+                        <button
+                            className="icon-btn-small"
+                            onClick={(e) => {
+                                e.stopPropagation(); // prevent double click trigger
+                                handleOpenModal(user);
+                            }}
+                        >
                             <FaEdit />
                         </button>
-                        <button className="icon-btn-small delete" title="Delete" onClick={() => handleDelete(user.id)}>
+
+                        <button
+                            className="icon-btn-small delete"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(user.id);
+                            }}
+                        >
                             <FaTrash />
                         </button>
                     </div>
@@ -251,6 +307,7 @@ const Users = () => {
             </tr>
         );
     };
+
 
 
     return (
@@ -276,7 +333,7 @@ const Users = () => {
                     />
                 </div>
                 <div className="action-group">
-                    <Filter data={users} onFilter={setFilteredUsers} />
+                    {/* <Filter data={users} onFilter={setFilteredUsers} /> */}
                     <button className="export-btn-gray" onClick={handleExport}>
                         <FaDownload /> Export
                     </button>
@@ -306,13 +363,12 @@ const Users = () => {
                                     const file = e.target.files?.[0];
                                     if (!file) return;
 
-                                    // optional size check (2MB)
                                     if (file.size > 2 * 1024 * 1024) {
                                         alert("Image must be under 2MB");
                                         return;
                                     }
 
-                                    // cleanup old blob
+                                    // cleanup old blob preview
                                     if (formData.profile_pic_preview?.startsWith("blob:")) {
                                         URL.revokeObjectURL(formData.profile_pic_preview);
                                     }
@@ -323,13 +379,18 @@ const Users = () => {
                                         ...formData,
                                         profile_pic_file: file,
                                         profile_pic_preview: previewUrl,
+                                        removeProfileImage: false, // reset remove flag
                                     });
                                 }}
                             />
 
-                            {formData.profile_pic_preview && (
+                            {/* ✅ Show new preview OR existing image */}
+                            {(formData.profile_pic_preview || formData.Profile_image) && (
                                 <div className="img-preview">
-                                    <img src={formData.profile_pic_preview} alt="preview" />
+                                    <img
+                                        src={formData.profile_pic_preview || formData.Profile_image}
+                                        alt="preview"
+                                    />
                                     <button
                                         type="button"
                                         className="remove-img"
@@ -337,10 +398,13 @@ const Users = () => {
                                             if (formData.profile_pic_preview?.startsWith("blob:")) {
                                                 URL.revokeObjectURL(formData.profile_pic_preview);
                                             }
+
                                             setFormData({
                                                 ...formData,
                                                 profile_pic_file: null,
                                                 profile_pic_preview: "",
+                                                Profile_image: "",
+                                                removeProfileImage: true,
                                             });
                                         }}
                                     >
@@ -352,6 +416,7 @@ const Users = () => {
 
                         <small className="hint">JPG/PNG/WebP, max 2MB</small>
                     </div>
+
 
                     {/* ✅ Full Name */}
                     <div className="form-group">
@@ -594,6 +659,68 @@ const Users = () => {
                     </div>
                 </form>
             </CustomModal>
+
+            {/* viewer  */}
+            <CustomModal
+                isOpen={viewOpen}
+                onClose={closeView}
+                title="Staff Details"
+            >
+                <div className="staff-view">
+
+                    <div className="staff-top">
+                        <div className="staff-avatar-large">
+                            {viewUser?.Profile_image ? (
+                                <img src={viewUser.Profile_image} alt={viewUser?.name} />
+                            ) : (
+                                <span>
+                                    {(viewUser?.name || "")
+                                        .split(" ")
+                                        .map(n => n[0])
+                                        .join("")
+                                        .toUpperCase()}
+                                </span>
+                            )}
+                        </div>
+
+                        <div>
+                            <h3>{viewUser?.name || "-"}</h3>
+                            <p className="role-text">{viewUser?.role || "-"}</p>
+                        </div>
+                    </div>
+
+                    <div className="details-grid">
+                        <Detail label="Email" value={viewUser?.email} />
+                        <Detail label="Parent Name" value={viewUser?.Parents_Name} />
+                        <Detail label="Gender" value={viewUser?.Gender} />
+                        <Detail label="Marital Status" value={viewUser?.Marital_Status} />
+                        <Detail label="Qualification" value={viewUser?.Qualification} />
+                        <Detail label="Specification" value={viewUser?.Specification} />
+                        <Detail label="Experience" value={viewUser?.Work_Experience ? `${viewUser.Work_Experience} year(s)` : "-"} />
+                        <Detail label="Address" value={viewUser?.Address} />
+                        <Detail label="Status" value={viewUser?.is_active ? "Active" : "Inactive"} />
+                        <Detail label="Created At" value={viewUser?.created_at?.slice(0, 10)} />
+                    </div>
+
+                    <div className="modal-actions">
+                        <button className="btn-secondary" onClick={closeView}>
+                            Close
+                        </button>
+
+                        <button
+                            className="btn-primary"
+                            onClick={() => {
+                                closeView();
+                                handleOpenModal(viewUser);
+                            }}
+                        >
+                            Edit
+                        </button>
+                    </div>
+
+                </div>
+            </CustomModal>
+
             <ConfirmDialog
                 isOpen={deleteDialog}
                 title="Delete User"

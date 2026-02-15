@@ -1,100 +1,159 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaPlus, FaSearch, FaFilter, FaEdit, FaTrash, FaDownload } from 'react-icons/fa';
 import CustomTable from '../../components/CustomTable/CustomTable';
-import CustomModal  from '../../components/CustomModal/CustomModal';
+import CustomModal from '../../components/CustomModal/CustomModal';
 import './patient.css';
+import { createPatient, deletePatient, getPatients, updatePatient } from '../../services/patients.service';
+import { useToast } from '../../context/ToastContext';
+import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 
 const Patient = () => {
-    const [patient, setPatient] = useState([
-        { id: 1, name: 'Kavitha', dept: 'Cardiology', time: '09:00 - 17:00', slot: '15 min', status: 'ACTIVE', initials: 'SC', color: '#eef2ff' },
-        { id: 2, name: ' Mithin', dept: 'Pediatrics', time: '08:00 - 16:00', slot: '30 min', status: 'ACTIVE', initials: 'JW', color: '#e0f2fe' },
-        { id: 3, name: ' Gokula kirshana', dept: 'Neurology', time: '10:00 - 18:00', slot: '20 min', status: 'ON LEAVE', initials: 'ER', color: '#fef3c7' },
-    
-    ]);
+    const { showToast } = useToast();
 
+    const [patient, setPatient] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [editingPatient, setEditingPatient] = useState(null);
+    const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [viewPatient, setViewPatient] = useState(null);
+    const [deleteDialog, setDeleteDialog] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
     const [formData, setFormData] = useState({
-        name: '',
-        dept: 'Cardiology',
-        startTime: '09:00',
-        endTime: '17:00',
-        slot: '15 min'
+        phone: "",
+        name: "",
+        email: "",
+        dob: "",
+        address: "",
+        gender: "Male",
     });
 
-    const headers = ['PATIENT NAME', 'DEPARTMENT', 'WORKING TIME', 'SLOT', 'STATUS', 'ACTIONS'];
+    useEffect(() => {
+        fetchPatients();
+    }, []);
 
-    const handleOpenModal = (patient = null) => {
-        if (patient) {
-            setEditingPatient(patient);
-            const [start, end] = patient.time.split(' - ');
+
+    const headers = ["PATIENT NAME", "PHONE", "EMAIL", "DOB", "GENDER", "ACTIONS"];
+
+    const handleRowDoubleClick = (patient) => {
+        setViewPatient(patient);
+        setViewModalOpen(true);
+    };
+
+    const closeViewModal = () => {
+        setViewModalOpen(false);
+        setViewPatient(null);
+    };
+
+    const handleOpenModal = (patientItem = null) => {
+        if (patientItem) {
+            setEditingPatient(patientItem);
             setFormData({
-                name: patient.name,
-                dept: patient.dept,
-                startTime: start,
-                endTime: end,
-                slot: patient.slot
+                phone: patientItem.phone || "",
+                name: patientItem.name || "",
+                email: patientItem.email || "",
+                dob: patientItem.dob ? patientItem.dob.slice(0, 10) : "",
+                address: patientItem.address || "",
+                gender: patientItem.gender || "Male",
             });
         } else {
             setEditingPatient(null);
             setFormData({
-                name: '',
-                dept: 'Cardiology',
-                startTime: '09:00',
-                endTime: '17:00',
-                slot: '15 min'
+                phone: "",
+                name: "",
+                email: "",
+                dob: "",
+                address: "",
+                gender: "Male",
             });
         }
         setIsModalOpen(true);
     };
 
+
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditingPatient(null);
+        setFormData({
+            phone: "",
+            name: "",
+            email: "",
+            dob: "",
+            address: "",
+            gender: "Male",
+        });
     };
+
 
     const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this patient?')) {
-            setPatient(patient.filter(p => p.id !== id));
-        }
+        setSelectedId(id);
+        setDeleteDialog(true);
     };
 
-    const handleSubmit = (e) => {
+
+    const confirmDelete = async () => {
+        try {
+            await deletePatient(selectedId);
+            showToast("Patient deleted successfully", "success");
+            fetchPatients();
+        } catch (error) {
+            showToast(
+                error?.response?.data?.message || "Failed to delete Patient",
+                "error"
+            );
+        } finally {
+            setDeleteDialog(false);
+            setSelectedId(null);
+        }
+    };
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const initials = formData.name.split(' ').map(n => n[0]).join('').toUpperCase();
-        const colors = ['#eef2ff', '#e0f2fe', '#fef3c7', '#f0fdf4', '#ecfdf5', '#fef2f2'];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-        if (editingPatient) {
-            setPatient(patient.map(p => p.id === editingPatient.id ? {
-                ...p,
-                name: formData.name,
-                dept: formData.dept,
-                time: `${formData.startTime} - ${formData.endTime}`,
-                slot: formData.slot,
-                initials: initials
-            } : p));
-        } else {
-            const newPatient = {
-                id: Date.now(),
-                name: formData.name,
-                dept: formData.dept,
-                time: `${formData.startTime} - ${formData.endTime}`,
-                slot: formData.slot,
-                status: 'ACTIVE',
-                initials: initials,
-                color: randomColor
-            };
-            setPatient([...patient, newPatient]);
+        try {
+            if (editingPatient) {
+                await updatePatient(editingPatient.id, formData);
+                showToast("Patient updated successfully", "success");
+            } else {
+                await createPatient(formData);
+                showToast("Patient created successfully", "success");
+            }
+
+            handleCloseModal();
+            fetchPatients(); // reload list
+        } catch (error) {
+            showToast(error?.response?.data?.message || "Something went wrong", "error");
         }
-        handleCloseModal();
     };
 
-    const filteredPatient = patient.filter(d =>
-        d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        d.dept.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const fetchPatients = async () => {
+        try {
+            setLoading(true);
+            const data = await getPatients();
+            setPatient(data);
+        } catch (error) {
+            console.error("Failed to fetch patients", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const filteredPatient = patient.filter((d) => {
+        const q = searchQuery.toLowerCase();
+
+        const name = (d.name || "").toLowerCase();
+        const phone = (d.phone || "").toLowerCase();
+        const email = (d.email || "").toLowerCase();
+        const gender = (d.gender || "").toLowerCase();
+
+        return (
+            name.includes(q) ||
+            phone.includes(q) ||
+            email.includes(q) ||
+            gender.includes(q)
+        );
+    });
+
 
     const handleFilter = () => {
         alert('Filter options:\n- Filter by Department\n- Filter by Status (Active, On Leave)\n- Filter by Slot Duration\n\nThis would open a filter modal in production.');
@@ -102,9 +161,19 @@ const Patient = () => {
 
     const handleExport = () => {
         const csvContent = [
-            ['Name', 'Department', 'Working Hours', 'Slot Duration', 'Status'],
-            ...patient.map(p => [p.name, p.dept, p.time, p.slot, p.status])
-        ].map(row => row.join(',')).join('\n');
+            ["Name", "Phone", "Email", "DOB", "Gender", "Address"],
+            ...patient.map((p) => [
+                p.name || "",
+                p.phone || "",
+                p.email || "",
+                p.dob || "",
+                p.gender || "",
+                p.address || "",
+            ]),
+        ]
+            .map((row) => row.join(","))
+            .join("\n");
+
 
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
@@ -115,41 +184,97 @@ const Patient = () => {
         window.URL.revokeObjectURL(url);
     };
 
-    const renderRow = (patient) => (
-        <tr key={patient.id}>
-            <td>
-                <div className="patient-info-cell">
-                    <div className="patient-avatar" style={{ backgroundColor: patient.color }}>
-                        {patient.initials}
+    const renderRow = (user) => {
+        const initials = user?.name
+            ? user.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
+            : "U";
+
+        const color = "#6366f1";
+
+        return (
+            <>
+                {/* 1️⃣ PATIENT NAME */}
+                <td>
+                    <div className="user-info-cell">
+                        <div
+                            className="user-avatar"
+                            style={{ backgroundColor: color }}
+                        >
+                            {user?.Profile_image ? (
+                                <img
+                                    src={user.Profile_image}
+                                    alt={user?.name || "User"}
+                                    className="avatar-img"
+                                />
+                            ) : (
+                                <span>{initials}</span>
+                            )}
+                        </div>
+
+                        <span className="user-name-text">
+                            {user?.name ?? "-"}
+                        </span>
                     </div>
-                    <span className="patient-name-text">{patient.name}</span>
-                </div>
-            </td>
-            <td>
-                <span className="dept-tag">{patient.dept}</span>
-            </td>
-            <td>{patient.time}</td>
-            <td>{patient.slot}</td>
-            <td>
-                <span className={`status-pill ${patient.status.toLowerCase().replace(' ', '-')}`}>
-                    {patient.status}
-                </span>
-            </td>
-            <td>
-                <div className="action-buttons">
-                    <button className="icon-btn-small" title="Edit" onClick={() => handleOpenModal(patient)}><FaEdit /></button>
-                    <button className="icon-btn-small delete" title="Delete" onClick={() => handleDelete(patient.id)}><FaTrash /></button>
-                </div>
-            </td>
-        </tr>
-    );
+                </td>
+
+                {/* 2️⃣ PHONE */}
+                <td>{user?.phone ?? "-"}</td>
+
+                {/* 3️⃣ EMAIL */}
+                <td>{user?.email ?? "-"}</td>
+
+                {/* 4️⃣ DOB */}
+                <td>
+                    {user?.dob
+                        ? new Date(user.dob).toLocaleDateString()
+                        : "-"}
+                </td>
+
+                {/* 5️⃣ GENDER */}
+                <td>{user?.gender ?? "-"}</td>
+
+                {/* 6️⃣ ACTIONS */}
+                <td>
+                    <div className="action-buttons">
+                        <button
+                            className="icon-btn-small"
+                            title="Edit"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenModal(user);
+                            }}
+                        >
+                            <FaEdit />
+                        </button>
+
+                        <button
+                            className="icon-btn-small delete"
+                            title="Delete"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(user?.id);
+                            }}
+                        >
+                            <FaTrash />
+                        </button>
+                    </div>
+                </td>
+            </>
+        );
+    };
+
+
 
     return (
         <div className="patient-page">
             <div className="page-header-row">
                 <div className="title-section">
-                     <h1>Patient Management</h1>
-                     <p>Manage healthcare professionals and their schedules <span className="count-badge">{patient.length} TOTAL PATIENT</span></p>
+                    <h1>Patient Management</h1>
+                    <p>Manage healthcare professionals and their schedules <span className="count-badge">{patient.length} TOTAL PATIENT</span></p>
                 </div>
                 <button className="add-btn" onClick={() => handleOpenModal()}>
                     <FaPlus /> Add New Patient
@@ -167,9 +292,9 @@ const Patient = () => {
                     />
                 </div>
                 <div className="action-group" style={{ display: 'flex', gap: '0.75rem' }}>
-                    <button className="filter-btn" onClick={handleFilter}>
+                    {/* <button className="filter-btn" onClick={handleFilter}>
                         <FaFilter /> Filters
-                    </button>
+                    </button> */}
                     <button className="export-btn-gray" onClick={handleExport} style={{ background: 'white', border: '1px solid #e5e7eb', padding: '0.75rem 1.25rem', borderRadius: '10px', color: '#4b5563', fontSize: '0.9375rem', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                         <FaDownload /> Export
                     </button>
@@ -177,9 +302,10 @@ const Patient = () => {
             </div>
 
             <div className="table-wrapper-card">
-                <CustomTable headers={headers} data={filteredPatient} renderRow={renderRow} />
+                <CustomTable headers={headers} data={filteredPatient} renderRow={renderRow} onRowDoubleClick={handleRowDoubleClick} />
             </div>
 
+            {/* edit & create */}
             <CustomModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
@@ -187,69 +313,151 @@ const Patient = () => {
             >
                 <form className="modal-form" onSubmit={handleSubmit}>
                     <div className="form-group">
+                        <label>Phone *</label>
+                        <input
+                            type="text"
+                            placeholder="Enter phone number"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
                         <label>Full Name</label>
                         <input
                             type="text"
                             placeholder="Enter patient's full name"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            required
                         />
                     </div>
+
                     <div className="form-group">
-                        <label>Department</label>
-                        <select
-                            value={formData.dept}
-                            onChange={(e) => setFormData({ ...formData, dept: e.target.value })}
-                        >
-                            <option>Cardiology</option>
-                            <option>Pediatrics</option>
-                            <option>Neurology</option>
-                            <option>General Practice</option>
-                            <option>Dermatology</option>
-                        </select>
+                        <label>Email</label>
+                        <input
+                            type="email"
+                            placeholder="Enter email"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        />
                     </div>
+
                     <div className="form-row">
                         <div className="form-group">
-                            <label>Start Time</label>
+                            <label>DOB</label>
                             <input
-                                type="time"
-                                value={formData.startTime}
-                                onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                                type="date"
+                                value={formData.dob}
+                                onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
                             />
                         </div>
+
                         <div className="form-group">
-                            <label>End Time</label>
-                            <input
-                                type="time"
-                                value={formData.endTime}
-                                onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                            />
+                            <label>Gender</label>
+                            <select
+                                value={formData.gender}
+                                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                            >
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                     </div>
+
                     <div className="form-group">
-                        <label>Slot Duration</label>
-                        <div className="radio-group">
-                            {['10 min', '15 min', '30 min'].map(s => (
-                                <label key={s}>
-                                    <input
-                                        type="radio"
-                                        name="slot"
-                                        checked={formData.slot === s}
-                                        onChange={() => setFormData({ ...formData, slot: s })}
-                                    /> {s}
-                                </label>
-                            ))}
-                        </div>
+                        <label>Address</label>
+                        <textarea
+                            placeholder="Enter address"
+                            value={formData.address}
+                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                            rows={3}
+                        />
                     </div>
+
                     <div className="form-actions">
-                        <button type="button" className="btn-secondary" onClick={handleCloseModal}>Cancel</button>
+                        <button type="button" className="btn-secondary" onClick={handleCloseModal}>
+                            Cancel
+                        </button>
                         <button type="submit" className="btn-primary">
                             {editingPatient ? "Update Patient" : "Save Patient"}
                         </button>
                     </div>
                 </form>
             </CustomModal>
+
+            {/* view */}
+            <CustomModal
+                isOpen={viewModalOpen}
+                onClose={closeViewModal}
+                title="Patient Details"
+            >
+                <div className="patient-view">
+
+                    <div className="view-row">
+                        <span className="label">Name</span>
+                        <span className="value">{viewPatient?.name || "-"}</span>
+                    </div>
+
+                    <div className="view-row">
+                        <span className="label">Phone</span>
+                        <span className="value">{viewPatient?.phone || "-"}</span>
+                    </div>
+
+                    <div className="view-row">
+                        <span className="label">Email</span>
+                        <span className="value">{viewPatient?.email || "-"}</span>
+                    </div>
+
+                    <div className="view-row">
+                        <span className="label">DOB</span>
+                        <span className="value">{viewPatient?.dob || "-"}</span>
+                    </div>
+
+                    <div className="view-row">
+                        <span className="label">Gender</span>
+                        <span className="value">{viewPatient?.gender || "-"}</span>
+                    </div>
+
+                    <div className="view-row">
+                        <span className="label">Address</span>
+                        <span className="value">{viewPatient?.address || "-"}</span>
+                    </div>
+
+                    <div className="view-row">
+                        <span className="label">Created At</span>
+                        <span className="value">{viewPatient?.created_at || "-"}</span>
+                    </div>
+
+                    <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+                        <button className="btn-secondary" onClick={closeViewModal}>
+                            Close
+                        </button>
+
+                        <button
+                            className="btn-primary"
+                            onClick={() => {
+                                closeViewModal();
+                                handleOpenModal(viewPatient); // open edit modal
+                            }}
+                        >
+                            Edit
+                        </button>
+                    </div>
+                </div>
+            </CustomModal>
+            {/* confirmation dialog */}
+            <ConfirmDialog
+                isOpen={deleteDialog}
+                title="Delete Patient "
+                message="Are you sure you want to delete this Patient?"
+                confirmText="Yes, Delete"
+                cancelText="No"
+                type="danger"
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteDialog(false)}
+            />
         </div>
     );
 };
