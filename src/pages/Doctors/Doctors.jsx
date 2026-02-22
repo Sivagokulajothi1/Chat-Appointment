@@ -69,11 +69,14 @@ const Doctors = () => {
     const handleOpenModal = (doctor = null) => {
         if (doctor) {
             setEditingDoctor(doctor);
-
+            console.log(doctor, "doctor");
             // ✅ backend row shape
             const start = doctor?.work_start?.slice?.(0, 5) || "09:00";
             const end = doctor?.work_end?.slice?.(0, 5) || "17:00";
-            const slot = doctor?.slot_minutes ? `${doctor.slot_minutes} min` : "15 min";
+
+            // Extract slot minutes safely, fallback to 15
+            const rawSlot = doctor?.slot_minutes || doctor?.staff?.slot_minutes || 15;
+            const formattedSlot = `${rawSlot} min`;
 
             setFormData({
                 doctorId: doctor?.doctor_staff_id || doctor?.staff?.id || "",
@@ -81,8 +84,8 @@ const Doctors = () => {
                 dept: doctor?.staff?.Specification || doctor?.dept || "Cardiology",
                 startTime: start,
                 endTime: end,
-                slot: doctor?.staff?.slot_minutes,
-                status: doctor?.is_active ? "ACTIVE" : "INACTIVE",
+                slot: formattedSlot,
+                status: doctor?.status ? doctor.status.toUpperCase() : (doctor?.is_active ? "ACTIVE" : "INACTIVE"),
             });
         } else {
             setEditingDoctor(null);
@@ -124,7 +127,7 @@ const Doctors = () => {
                 work_start: formData.startTime,
                 work_end: formData.endTime,
                 slot_minutes,
-                status: formData.status, // ACTIVE / INACTIVE / LEAVE
+                status: formData.status.toLowerCase(), // Convert to active/inactive/leave
             };
 
             if (editingDoctor?.id) {
@@ -174,7 +177,7 @@ const Doctors = () => {
         const dept = row?.staff?.Specification || "";
         const time = `${row.work_start.slice(0, 5)} - ${row.work_end.slice(0, 5)}`;
         const slot = `${row.slot_minutes} min`;
-        const status = row.is_active ? "ACTIVE" : "INACTIVE";
+        const status = row.status ? row.status.toUpperCase() : (row.is_active ? "ACTIVE" : "INACTIVE");
 
         return (
             <tr key={row.id}>

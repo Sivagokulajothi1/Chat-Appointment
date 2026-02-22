@@ -2,19 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { FaSearch, FaCalendarAlt, FaClock, FaTimes, FaCalendarCheck, FaPlus, FaTrash, FaFilter, FaDownload } from 'react-icons/fa';
 import CustomTable from '../../components/CustomTable/CustomTable';
 import CustomModal from '../../components/CustomModal/CustomModal';
+import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
+import { useToast } from '../../context/ToastContext';
 import {
     getAppointments,
     bookAppointment,
     confirmAppointment,
     cancelAppointment,
 } from '../../services/appointments.service';
+import { getDoctorsOnly } from '../../services/doctorSettings.service';
 import './Appointments.css';
 
 const Appointments = () => {
+    const { showToast } = useToast();
     const [activeTab, setActiveTab] = useState('All Appointments');
     const [searchQuery, setSearchQuery] = useState('');
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    // Delete confirm dialog
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
     // ✅ Load appointments from API on mount
     useEffect(() => {
@@ -35,17 +43,74 @@ const Appointments = () => {
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [doctorsList, setDoctorsList] = useState([]);
     const [formData, setFormData] = useState({
         patientName: '',
-        doctorName: 'Dr. Emily Blunt',
+        doctorId: '',
         date: '',
         time: ''
     });
 
+    useEffect(() => {
+        if (isModalOpen) {
+            const fetchDoctors = async () => {
+                try {
+                    const res = await getDoctorsOnly();
+                    const fetchedDoctors = Array.isArray(res.data) ? res.data : (res.data.doctors || res.data.rows || []);
+                    setDoctorsList(fetchedDoctors);
+                    if (fetchedDoctors.length > 0 && !formData.doctorId) {
+                        setFormData(prev => ({ ...prev, doctorId: fetchedDoctors[0].id }));
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch doctors:', err);
+                }
+            };
+            fetchDoctors();
+        }
+    }, [isModalOpen]);
+
+    // ── Dynamic stats computed from real data ────────────────────────────────
+    const todayStr = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
+
+    // Helper for safe date parsing
+    const safeDate = (dateStr) => {
+        if (!dateStr) return null;
+        const d = new Date(dateStr);
+        return isNaN(d) ? null : d;
+    };
+
+    const todayCount = appointments.filter(apt => {
+        const dStr = apt?.created_at || apt?.dateTime?.date || apt?.date || apt?.appointment_date || '';
+        if (dStr.startsWith(todayStr)) return true;
+        const dObj = safeDate(dStr);
+        return dObj && dObj.toISOString().split('T')[0] === todayStr;
+    }).length;
+
+    const pendingCount = appointments.filter(apt => {
+        const status = (apt?.status || '').toLowerCase();
+        return status === 'pending' || status === 'booked' || status === 'slot_booked';
+    }).length;
+
+    const upcomingCount = appointments.filter(apt => {
+        const dStr = apt?.created_at || apt?.dateTime?.date || apt?.date || apt?.appointment_date || '';
+        const status = (apt?.status || '').toLowerCase();
+
+        // Include today's future appointments as well by checking >= todayStr, or just use date comparison without time
+        if (dStr.startsWith(todayStr) && status !== 'cancelled' && status !== 'completed') return true;
+
+        const dObj = safeDate(dStr);
+        // Compare dates (ignoring time)
+        if (dObj) {
+            const isFuture = dObj.toISOString().split('T')[0] > todayStr;
+            return isFuture && status !== 'cancelled' && status !== 'completed';
+        }
+        return false;
+    }).length;
+
     const stats = [
-        { label: 'Total Today', value: '42', icon: <FaCalendarAlt />, color: '#3b82f6' },
-        { label: 'Pending Approval', value: '8', icon: <FaClock />, color: '#f59e0b' },
-        { label: 'Upcoming', value: '156', icon: <FaCalendarCheck />, color: '#10b981' }
+        { label: 'Total Today', value: todayCount, icon: <FaCalendarAlt />, color: '#3b82f6' },
+        { label: 'Pending Approval', value: pendingCount, icon: <FaClock />, color: '#f59e0b' },
+        { label: 'Upcoming', value: upcomingCount, icon: <FaCalendarCheck />, color: '#10b981' },
     ];
 
     const tabs = ['All Appointments', 'Pending', 'Confirmed', 'Cancelled'];
@@ -57,18 +122,24 @@ const Appointments = () => {
             } else if (newStatus === 'Cancelled') {
                 await cancelAppointment(id, { reason: 'Cancelled by admin' });
             }
-            // Refresh list after status change
             fetchAppointments();
+            showToast(`Appointment ${newStatus.toLowerCase()}`, 'success');
         } catch (err) {
             console.error('Status change failed:', err);
-            alert(err?.response?.data?.message || 'Action failed');
+            showToast(err?.response?.data?.message || 'Action failed', 'error');
         }
     };
 
-    const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this appointment?')) {
-            setAppointments(appointments.filter(apt => apt.id !== id));
-        }
+    const handleDeleteClick = (id) => {
+        setPendingDeleteId(id);
+        setConfirmOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        setAppointments(prev => prev.filter(apt => apt.id !== pendingDeleteId));
+        setConfirmOpen(false);
+        setPendingDeleteId(null);
+        showToast('Appointment removed', 'success');
     };
 
     const handleSubmit = async (e) => {
@@ -76,25 +147,28 @@ const Appointments = () => {
         try {
             const payload = {
                 patientName: formData.patientName,
-                doctorName: formData.doctorName,
+                doctorId: formData.doctorId,
                 date: formData.date,
                 time: formData.time,
             };
             await bookAppointment(payload);
-            // Refresh list after booking
             fetchAppointments();
             setIsModalOpen(false);
-            setFormData({ patientName: '', doctorName: 'Dr. Emily Blunt', date: '', time: '' });
+            setFormData({ patientName: '', doctorId: doctorsList[0]?.id || '', date: '', time: '' });
+            showToast('Appointment booked successfully', 'success');
         } catch (err) {
             console.error('Booking failed:', err);
-            alert(err?.response?.data?.message || 'Booking failed');
+            showToast(err?.response?.data?.message || 'Booking failed', 'error');
         }
     };
 
     const filteredAppointments = appointments.filter(apt => {
-        const matchesSearch = apt.patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            apt.doctor.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesTab = activeTab === 'All Appointments' || apt.status === activeTab;
+        const pName = apt?.patient?.name || apt?.patient_name || apt?.name || '';
+        const dName = apt?.doctor?.name || apt?.doctor_name || '';
+        const matchesSearch = pName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            dName.toLowerCase().includes(searchQuery.toLowerCase());
+        const status = apt?.status || '';
+        const matchesTab = activeTab === 'All Appointments' || status === activeTab;
         return matchesSearch && matchesTab;
     });
 
@@ -106,12 +180,12 @@ const Appointments = () => {
         const csvContent = [
             ['Patient', 'Doctor', 'Department', 'Date', 'Time', 'Status'],
             ...appointments.map(apt => [
-                apt.patient.name,
-                apt.doctor.name,
-                apt.doctor.dept,
-                apt.dateTime.date,
-                apt.dateTime.time,
-                apt.status
+                apt?.patient?.name || apt?.patient_name || apt?.name || '-',
+                apt?.doctor?.name || apt?.doctor_name || '-',
+                apt?.doctor?.dept || apt?.department || '-',
+                apt?.dateTime?.date || apt?.date || apt?.appointment_date || '-',
+                apt?.dateTime?.time || apt?.time || apt?.appointment_time || '-',
+                apt?.status || 'Pending'
             ])
         ].map(row => row.join(',')).join('\n');
 
@@ -126,48 +200,60 @@ const Appointments = () => {
 
     const headers = ['PATIENT NAME', 'DOCTOR', 'DATE & TIME', 'STATUS', 'ACTIONS'];
 
-    const renderRow = (apt) => (
-        <tr key={apt.id}>
-            <td>
-                <div className="patient-cell">
-                    <img src={apt.patient.avatar} alt={apt.patient.name} className="apt-avatar" />
-                    <span className="apt-name">{apt.patient.name}</span>
-                </div>
-            </td>
-            <td>
-                <div className="doctor-cell">
-                    <div className="apt-doc-name">{apt.doctor.name}</div>
-                    <div className="apt-doc-dept">{apt.doctor.dept}</div>
-                </div>
-            </td>
-            <td>
-                <div className="datetime-cell">
-                    <div className="apt-date">{apt.dateTime.date}</div>
-                    <div className="apt-time">{apt.dateTime.time}</div>
-                </div>
-            </td>
-            <td>
-                <span className={`status-pill apt-${apt.status.toLowerCase()}`}>
-                    {apt.status}
-                </span>
-            </td>
-            <td>
-                <div className="apt-actions">
-                    {apt.status === 'Pending' && (
-                        <button className="confirm-btn-action" onClick={() => handleStatusChange(apt.id, 'Confirmed')}>CONFIRM</button>
-                    )}
-                    {apt.status === 'Cancelled' ? (
-                        <button className="restore-link" onClick={() => handleStatusChange(apt.id, 'Confirmed')}>Restore</button>
-                    ) : (
-                        <>
-                            <button className="icon-btn-apt" onClick={() => handleDelete(apt.id)}><FaTrash /></button>
-                            <button className="icon-btn-apt cancel" onClick={() => handleStatusChange(apt.id, 'Cancelled')}><FaTimes /></button>
-                        </>
-                    )}
-                </div>
-            </td>
-        </tr>
-    );
+    const renderRow = (apt) => {
+        const pName = apt?.patient?.name || apt?.patient_name || apt?.name || 'Unknown Patient';
+        const pAvatar = apt?.patient?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(pName)}&background=random`;
+
+        const dName = apt?.doctor?.name || apt?.doctor_name || 'Unassigned';
+        const dDept = apt?.doctor?.dept || apt?.department || '—';
+
+        const dateStr = apt?.created_at ? new Date(apt.created_at).toLocaleDateString() : (apt?.dateTime?.date || apt?.date || apt?.appointment_date || '—');
+        const timeStr = apt?.created_at ? new Date(apt.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (apt?.dateTime?.time || apt?.time || apt?.appointment_time || '—');
+        const status = (apt?.status || 'Pending').toUpperCase();
+
+        return (
+            <tr key={apt.id}>
+                <td>
+                    <div className="patient-cell">
+                        <img src={pAvatar} alt={pName} className="apt-avatar" />
+                        <span className="apt-name">{pName}</span>
+                    </div>
+                </td>
+                <td>
+                    <div className="doctor-cell">
+                        <div className="apt-doc-name">{dName}</div>
+                        <div className="apt-doc-dept">{dDept}</div>
+                    </div>
+                </td>
+                <td>
+                    <div className="datetime-cell">
+                        <div className="apt-date">{dateStr}</div>
+                        <div className="apt-time">{timeStr}</div>
+                    </div>
+                </td>
+                <td>
+                    <span className={`status-pill apt-${status.toLowerCase()}`}>
+                        {status}
+                    </span>
+                </td>
+                <td>
+                    <div className="apt-actions">
+                        {(status === 'PENDING' || status === 'BOOKED' || status === 'SLOT_BOOKED') && (
+                            <button className="confirm-btn-action" onClick={() => handleStatusChange(apt.id, 'Confirmed')}>CONFIRM</button>
+                        )}
+                        {status === 'CANCELLED' ? (
+                            <button className="restore-link" onClick={() => handleStatusChange(apt.id, 'Confirmed')}>Restore</button>
+                        ) : (
+                            <>
+                                <button className="icon-btn-apt" onClick={() => handleDeleteClick(apt.id)}><FaTrash /></button>
+                                <button className="icon-btn-apt cancel" onClick={() => handleStatusChange(apt.id, 'Cancelled')}><FaTimes /></button>
+                            </>
+                        )}
+                    </div>
+                </td>
+            </tr>
+        );
+    };
 
     return (
         <div className="appointments-page">
@@ -254,12 +340,16 @@ const Appointments = () => {
                     <div className="form-group">
                         <label>Doctor</label>
                         <select
-                            value={formData.doctorName}
-                            onChange={(e) => setFormData({ ...formData, doctorName: e.target.value })}
+                            value={formData.doctorId}
+                            onChange={(e) => setFormData({ ...formData, doctorId: e.target.value })}
+                            required
                         >
-                            <option>Dr. Emily Blunt</option>
-                            <option>Dr. Michael Chen</option>
-                            <option>Dr. Sarah Wilson</option>
+                            <option value="" disabled>Select a doctor</option>
+                            {doctorsList.map(doc => (
+                                <option key={doc.id} value={doc.id}>
+                                    {doc.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div className="form-row">
@@ -288,6 +378,18 @@ const Appointments = () => {
                     </div>
                 </form>
             </CustomModal>
+
+            {/* Delete Confirmation */}
+            <ConfirmDialog
+                isOpen={confirmOpen}
+                type="danger"
+                title="Delete Appointment"
+                message="Are you sure you want to remove this appointment?"
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => { setConfirmOpen(false); setPendingDeleteId(null); }}
+            />
         </div>
     );
 };

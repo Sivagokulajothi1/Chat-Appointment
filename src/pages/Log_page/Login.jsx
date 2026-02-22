@@ -35,9 +35,9 @@ const Login = () => {
       // expected backend response
       const { token, user } = res.data;
 
-      // store auth data
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+      // store auth in sessionStorage (clears on browser close → forces re-login)
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("user", JSON.stringify(user));
 
       showToast("Login successful", "success");
 

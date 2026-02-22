@@ -41,8 +41,19 @@ const Users = () => {
         profile_pic_preview: "",
         Profile_image: "", //for supbase save
 
-        permissions: { billing: true, records: true, settings: true },
+        permissions: [],
     });
+
+    const AVAILABLE_PERMISSIONS = [
+        { id: 'dashboard', label: 'Dashboard' },
+        { id: 'appointments', label: 'Appointments' },
+        { id: 'doctors', label: 'Doctors' },
+        { id: 'patients', label: 'Patients' },
+        { id: 'analytics', label: 'Analytics' },
+        { id: 'slots', label: 'Slot Config' },
+        { id: 'whatsapp', label: 'WhatsApp' },
+        { id: 'users', label: 'Users' }
+    ];
 
     useEffect(() => {
         fetchusers();
@@ -93,7 +104,8 @@ const Users = () => {
                 Qualification: user.Qualification,
                 Specification: user.Specification,
                 gender: user.Gender,
-                Profile_image: user?.Profile_image ?? ""
+                Profile_image: user?.Profile_image ?? "",
+                permissions: Array.isArray(user.permissions) ? user.permissions : []
             });
         } else {
             setEditingUser(null);
@@ -102,7 +114,8 @@ const Users = () => {
                 email: '',
                 role: 'Receptionist',
                 status: 'Active',
-                password: ''
+                password: '',
+                permissions: []
             });
         }
         setIsModalOpen(true);
@@ -586,60 +599,30 @@ const Users = () => {
                     {/* ✅ Permissions (CONTROLLED not defaultChecked) */}
                     <div className="permissions-section">
                         <p className="permissions-title">
-                            <FaUserShield /> Access Permissions
+                            <FaUserShield /> Access Permissions (Navbar)
                         </p>
-
-                        <div className="permissions-list">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={formData.permissions?.billing === true}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            permissions: {
-                                                ...formData.permissions,
-                                                billing: e.target.checked,
-                                            },
-                                        })
-                                    }
-                                />
-                                Manage Billing & Payments
-                            </label>
-
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={formData.permissions?.records === true}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            permissions: {
-                                                ...formData.permissions,
-                                                records: e.target.checked,
-                                            },
-                                        })
-                                    }
-                                />
-                                View Patient Medical Records
-                            </label>
-
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={formData.permissions?.settings === true}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            permissions: {
-                                                ...formData.permissions,
-                                                settings: e.target.checked,
-                                            },
-                                        })
-                                    }
-                                />
-                                Edit Clinic Settings
-                            </label>
+                        <div className="permissions-list" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                            {AVAILABLE_PERMISSIONS.map(perm => (
+                                <label key={perm.id}>
+                                    <input
+                                        type="checkbox"
+                                        checked={(formData.permissions || []).includes(perm.id)}
+                                        onChange={(e) => {
+                                            const isChecked = e.target.checked;
+                                            setFormData(prev => {
+                                                let newPerms = [...(prev.permissions || [])];
+                                                if (isChecked) {
+                                                    if (!newPerms.includes(perm.id)) newPerms.push(perm.id);
+                                                } else {
+                                                    newPerms = newPerms.filter(p => p !== perm.id);
+                                                }
+                                                return { ...prev, permissions: newPerms };
+                                            });
+                                        }}
+                                    />
+                                    {perm.label}
+                                </label>
+                            ))}
                         </div>
                     </div>
 

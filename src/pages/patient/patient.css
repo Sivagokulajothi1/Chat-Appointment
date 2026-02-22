@@ -1,4 +1,4 @@
-.doctors-page {
+.patient-page {
   padding: 2.5rem;
   padding-bottom: 5rem;
   background-color: #f8fafc;
@@ -116,13 +116,13 @@
   overflow: hidden;
 }
 
-.doctor-info-cell {
+.patient-info-cell {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.doctor-avatar {
+.patient-avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -134,7 +134,7 @@
   color: #374151;
 }
 
-.doctor-name-text {
+.patient-name-text {
   font-weight: 600;
   color: #111827;
 }
@@ -209,7 +209,8 @@
   color: #374151;
 }
 
-.form-group input, .form-group select {
+.form-group input,
+.form-group select {
   padding: 0.75rem;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -280,10 +281,12 @@
   padding: 10px 0;
   border-bottom: 1px solid #f1f5f9;
 }
+
 .patient-view .label {
   color: #64748b;
   font-weight: 600;
 }
+
 .patient-view .value {
   color: #0f172a;
   font-weight: 600;

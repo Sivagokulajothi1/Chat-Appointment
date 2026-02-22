@@ -6,10 +6,10 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
 
-  // restore session on reload
+  // restore session on reload (sessionStorage clears on browser close)
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
+    const token = sessionStorage.getItem("token");
+    const storedUser = sessionStorage.getItem("user");
 
     if (token) {
       setIsLoggedIn(true);
@@ -19,15 +19,15 @@ export const AuthProvider = ({ children }) => {
 
   // for login and signup (same)
   const setSession = (token, userData) => {
-    if (token) localStorage.setItem("token", token);
-    if (userData) localStorage.setItem("user", JSON.stringify(userData));
+    if (token) sessionStorage.setItem("token", token);
+    if (userData) sessionStorage.setItem("user", JSON.stringify(userData));
     setIsLoggedIn(true);
     setUser(userData || null);
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
     setIsLoggedIn(false);
     setUser(null);
   };

@@ -208,12 +208,12 @@ const Patient = () => {
         return (
             <tr
                 key={user?.id}
-                onDoubleClick={() => openView(user)} 
+                onDoubleClick={() => openView(user)}
                 style={{ cursor: "pointer" }}
             >
                 <td>
-                    <div className="user-info-cell">
-                        <div className="user-avatar" style={{ backgroundColor: color }}>
+                    <div className="patient-info-cell">
+                        <div className="patient-avatar" style={{ backgroundColor: color }}>
                             {user?.Profile_image ? (
                                 <img
                                     src={user.Profile_image}
@@ -224,14 +224,14 @@ const Patient = () => {
                                 <span>{initials}</span>
                             )}
                         </div>
-                        <span className="user-name-text">{user?.name || "-"}</span>
+                        <span className="patient-name-text">{user?.name || "-"}</span>
                     </div>
                 </td>
 
                 <td>{user?.phone || "-"}</td>
                 <td>{user?.email || "-"}</td>
                 <td>{user?.dob || "-"}</td>
-                <td>{user?.gender    || "-"}</td>
+                <td>{user?.gender || "-"}</td>
 
                 <td>
                     <div className="action-buttons">
@@ -266,7 +266,7 @@ const Patient = () => {
             <div className="page-header-row">
                 <div className="title-section">
                     <h1>Patient Management</h1>
-                    <p>Manage healthcare professionals and their schedules <span className="count-badge">{patient.length} TOTAL PATIENT</span></p>
+                    <p>Manage your registered patients and their health records <span className="count-badge">{patient.length} TOTAL PATIENTS</span></p>
                 </div>
                 <button className="add-btn" onClick={() => handleOpenModal()}>
                     <FaPlus /> Add New Patient
@@ -278,7 +278,7 @@ const Patient = () => {
                     <FaSearch className="search-icon" />
                     <input
                         type="text"
-                        placeholder="Search by name, department..."
+                        placeholder="Search by name, phone, email..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaSearch, FaBell, FaThLarge, FaList } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaBell, FaThLarge, FaList, FaQrcode } from 'react-icons/fa';
 import TemplateCard from '../../components/TemplateCard/TemplateCard';
 import CustomModal from '../../components/CustomModal/CustomModal';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
@@ -27,6 +27,9 @@ const WhatsApp = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingTemplate, setEditingTemplate] = useState(null);
     const [formData, setFormData] = useState(INITIAL_FORM);
+
+    // QR Code modal
+    const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
     // Delete confirmation dialog
     const [confirmOpen, setConfirmOpen] = useState(false);
@@ -168,6 +171,9 @@ const WhatsApp = () => {
                     </div>
                 </div>
                 <div className="header-right">
+                    <button className="qr-scan-btn" onClick={() => setIsQrModalOpen(true)} title="Scan QR Code">
+                        <FaQrcode /> Scan QR
+                    </button>
                     <button className="notification-btn"><FaBell /></button>
                     <button className="create-template-btn" onClick={handleOpenCreate}>
                         <FaPlus /> Create Template
@@ -317,6 +323,36 @@ const WhatsApp = () => {
                 onConfirm={handleConfirmDelete}
                 onCancel={handleCancelDelete}
             />
+            {/* QR Code Modal */}
+            <CustomModal
+                isOpen={isQrModalOpen}
+                onClose={() => setIsQrModalOpen(false)}
+                title="WhatsApp QR Code"
+            >
+                <div style={{ textAlign: 'center', padding: '1rem' }}>
+                    <p style={{ marginBottom: '1.5rem', color: '#64748b' }}>
+                        Scan this QR code with your mobile device to open the WhatsApp chat.
+                    </p>
+                    <div style={{
+                        background: '#f8fafc',
+                        padding: '2rem',
+                        borderRadius: '16px',
+                        display: 'inline-block',
+                        border: '1px solid #e2e8f0'
+                    }}>
+                        <img
+                            src="/whatsapp-qr.svg"
+                            alt="WhatsApp QR Code"
+                            style={{
+                                width: '250px',
+                                height: '250px',
+                                display: 'block',
+                                margin: '0 auto'
+                            }}
+                        />
+                    </div>
+                </div>
+            </CustomModal>
         </div>
     );
 };

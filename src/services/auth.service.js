@@ -9,3 +9,6 @@ export const adminLogin = (payload) => api.post("/auth/login", payload);
 
 // STAFF login
 export const staffLogin = (payload) => api.post("/staff-auth/login", payload);
+
+// GET current user
+export const getMe = () => api.get("/auth/me");

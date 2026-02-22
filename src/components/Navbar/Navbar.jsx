@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BsGridFill } from 'react-icons/bs';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -18,6 +18,7 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import CustomModal from '../CustomModal/CustomModal';
+import { getMe } from '../../services/auth.service';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -26,12 +27,31 @@ const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { logout } = useAuth();
+    const [userInfo, setUserInfo] = useState({ name: 'Loading...', email: '', role: '' });
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await getMe();
+                setUserInfo({
+                    name: res.data.user?.name || res.data.user?.email?.split('@')[0] || "Admin",
+                    email: res.data.user?.email || "admin@medsync.wa",
+                    role: res.data.type === "staff" ? res.data.user?.role || "Staff" : "System Manager",
+                    type: res.data.type || "",
+                    permissions: res.data.user?.permissions || []
+                });
+            } catch (err) {
+                console.error("Failed to fetch user info", err);
+            }
+        };
+        fetchUser();
+    }, []);
 
     const getActiveNav = () => {
         const path = location.pathname;
         if (path === '/dashboard') return 'Dashboard';
         if (path.includes('/doctors')) return 'Doctors';
-         if (path.includes('/doctors')) return 'Patients';
+        if (path.includes('/doctors')) return 'Patients';
         if (path.includes('/slots')) return 'Slot Config';
         if (path.includes('/appointments')) return 'Appointments';
         if (path.includes('/whatsapp')) return 'WhatsApp';
@@ -47,7 +67,7 @@ const Navbar = () => {
         { id: 'dashboard', path: '/dashboard', label: 'Dashboard', icon: <BsGridFill /> },
         { id: 'appointments', path: '/appointments', label: 'Appointments', icon: <FaCalendarAlt /> },
         { id: 'doctors', path: '/doctors', label: 'Doctors', icon: <FaUserInjured /> },
-        { id: 'patients', path: '/patients', label: 'Patients', icon: <FaUserFriends/> },
+        { id: 'patients', path: '/patients', label: 'Patients', icon: <FaUserFriends /> },
         { id: 'analytics', path: '/analytics', label: 'Analytics', icon: <FaChartLine /> },
         { id: 'slots', path: '/slots', label: 'Slot Config', icon: <FaClock /> },
         { id: 'whatsapp', path: '/whatsapp', label: 'WhatsApp', icon: <FaWhatsapp /> },
@@ -75,7 +95,7 @@ const Navbar = () => {
                     {isSidebarOpen ? <FaTimes /> : <FaBars />}
                 </button>
                 <div className="navbar-mobile-logo">
-                    <h1>MedSync WA</h1>
+                    <h1>Mithin Clinic</h1>
                     <span>Admin Dashboard</span>
                 </div>
             </div>
@@ -94,19 +114,30 @@ const Navbar = () => {
                 {/* Navigation Items */}
                 <div className="navbar-nav-section">
                     <ul className="navbar-nav-list">
-                        {navItems.map((item) => (
-                            <li key={item.id}>
-                                <NavLink
-                                    to={item.path}
-                                    className={({ isActive }) =>
-                                        `navbar-nav-item ${isActive || activeNav === item.label ? 'active' : ''}`
-                                    }
-                                >
-                                    <div className="navbar-nav-icon">{item.icon}</div>
-                                    <span className="navbar-nav-label">{item.label}</span>
-                                </NavLink>
-                            </li>
-                        ))}
+                        {navItems
+                            .filter(item => {
+                                // Super admin sees everything
+                                if (userInfo.type === "user") return true;
+                                // If staff, check their permissions array
+                                if (userInfo.type === "staff") {
+                                    return Array.isArray(userInfo.permissions) && userInfo.permissions.includes(item.id);
+                                }
+                                // Default hide if not loaded
+                                return false;
+                            })
+                            .map((item) => (
+                                <li key={item.id}>
+                                    <NavLink
+                                        to={item.path}
+                                        className={({ isActive }) =>
+                                            `navbar-nav-item ${isActive || activeNav === item.label ? 'active' : ''}`
+                                        }
+                                    >
+                                        <div className="navbar-nav-icon">{item.icon}</div>
+                                        <span className="navbar-nav-label">{item.label}</span>
+                                    </NavLink>
+                                </li>
+                            ))}
                     </ul>
                 </div>
 
@@ -114,11 +145,11 @@ const Navbar = () => {
                 <div className="navbar-user-section">
                     <div className="nav-profile-card" onClick={toggleProfileModal} style={{ cursor: 'pointer' }}>
                         <div className="profile-avatar">
-                            <img src="https://ui-avatars.com/api/?name=Admin+User&background=f0fdf4&color=16a34a&bold=true" alt="User" />
+                            <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userInfo.name)}&background=f0fdf4&color=16a34a&bold=true`} alt="User" />
                         </div>
                         <div className="profile-info">
-                            <p className="profile-name">Admin User</p>
-                            <p className="profile-role">System Manager</p>
+                            <p className="profile-name">{userInfo.name}</p>
+                            <p className="profile-role">{userInfo.role}</p>
                         </div>
                     </div>
                 </div>
@@ -131,11 +162,11 @@ const Navbar = () => {
             >
                 <div className="profile-modal-content">
                     <div className="profile-modal-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', paddingBottom: '1.5rem', borderBottom: '1px solid #f1f5f9', marginBottom: '1.5rem' }}>
-                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=f0fdf4&color=16a34a&bold=true" alt="User Avatar" style={{ width: '64px', height: '64px', borderRadius: '16px' }} />
+                        <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userInfo.name)}&background=f0fdf4&color=16a34a&bold=true`} alt="User Avatar" style={{ width: '64px', height: '64px', borderRadius: '16px' }} />
                         <div className="modal-user-info">
-                            <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#0f172a' }}>Admin User</h3>
-                            <p style={{ margin: '0.25rem 0', color: '#64748b', fontSize: '0.9rem' }}>admin@medsync.wa</p>
-                            <span className="role-badge" style={{ display: 'inline-block', padding: '0.25rem 0.75rem', background: '#f0fdf4', color: '#16a34a', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600 }}>System Manager</span>
+                            <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#0f172a' }}>{userInfo.name}</h3>
+                            <p style={{ margin: '0.25rem 0', color: '#64748b', fontSize: '0.9rem' }}>{userInfo.email}</p>
+                            <span className="role-badge" style={{ display: 'inline-block', padding: '0.25rem 0.75rem', background: '#f0fdf4', color: '#16a34a', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600 }}>{userInfo.role}</span>
                         </div>
                     </div>
 

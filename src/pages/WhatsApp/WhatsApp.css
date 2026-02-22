@@ -56,6 +56,26 @@
     gap: 1.5rem;
 }
 
+.qr-scan-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #dcfce7;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.qr-scan-btn:hover {
+    background: #dcfce7;
+    transform: translateY(-1px);
+}
+
 .notification-btn {
     background: none;
     border: none;
