@@ -1,40 +1,65 @@
-import React, { useState } from 'react';
-import { FaClock, FaPlus, FaBan } from 'react-icons/fa';
+import React from 'react';
+import { FaClock, FaPlus, FaBan, FaTimes } from 'react-icons/fa';
 import ToggleButton from '../ToggleButton/ToggleButton';
 import './DayScheduleCard.css';
 
-const DayScheduleCard = ({ day, initialEnabled = true, initialSlots = [] }) => {
-    const [isEnabled, setIsEnabled] = useState(initialEnabled);
-    const [slots, setSlots] = useState(initialSlots.length > 0 ? initialSlots : [{ start: '09:00 AM', end: '05:00 PM' }]);
+/**
+ * Props:
+ *  day        - string label e.g. "Monday"
+ *  dayOfWeek  - number 0–6 (0=Sunday)
+ *  isWorking  - bool (controlled)
+ *  shifts     - array of { start:"HH:MM", end:"HH:MM" }
+ *  onChange   - (dayOfWeek, { is_working, shifts }) => void
+ */
+const DayScheduleCard = ({ day, dayOfWeek, isWorking, shifts = [], onChange }) => {
 
-    const toggleDay = () => setIsEnabled(!isEnabled);
+    const handleToggle = () => {
+        onChange(dayOfWeek, { is_working: !isWorking, shifts });
+    };
 
-    const addSlot = () => {
-        if (isEnabled) {
-            setSlots([...slots, { start: '09:00 AM', end: '05:00 PM' }]);
-        }
+    const handleShiftChange = (index, field, value) => {
+        const updated = shifts.map((s, i) => i === index ? { ...s, [field]: value } : s);
+        onChange(dayOfWeek, { is_working: isWorking, shifts: updated });
+    };
+
+    const handleAddShift = () => {
+        onChange(dayOfWeek, {
+            is_working: isWorking,
+            shifts: [...shifts, { start: '09:00', end: '17:00' }],
+        });
+    };
+
+    const handleDeleteShift = (index) => {
+        const updated = shifts.filter((_, i) => i !== index);
+        onChange(dayOfWeek, { is_working: isWorking, shifts: updated });
     };
 
     return (
-        <div className={`day-card ${!isEnabled ? 'disabled' : ''}`}>
+        <div className={`day-card ${!isWorking ? 'disabled' : ''}`}>
             <div className="day-card-header">
                 <h3>{day}</h3>
                 <div className="header-right">
-                    {!isEnabled && day === 'Weekend' && <span className="closed-badge">STANDARD CLOSED</span>}
-                    <ToggleButton isOn={isEnabled} handleToggle={toggleDay} />
+                    {!isWorking && (dayOfWeek === 0 || dayOfWeek === 6) && (
+                        <span className="closed-badge">STANDARD CLOSED</span>
+                    )}
+                    <ToggleButton isOn={isWorking} handleToggle={handleToggle} />
                 </div>
             </div>
 
             <div className="day-card-content">
-                {isEnabled ? (
+                {isWorking ? (
                     <>
                         <div className="slots-list">
-                            {slots.map((slot, index) => (
+                            {shifts.map((shift, index) => (
                                 <div key={index} className="slot-item">
                                     <div className="time-input-group">
                                         <span className="input-label">START</span>
                                         <div className="time-picker">
-                                            <span>{slot.start}</span>
+                                            <input
+                                                type="time"
+                                                value={shift.start}
+                                                onChange={(e) => handleShiftChange(index, 'start', e.target.value)}
+                                            />
                                             <FaClock className="clock-icon" />
                                         </div>
                                     </div>
@@ -42,33 +67,44 @@ const DayScheduleCard = ({ day, initialEnabled = true, initialSlots = [] }) => {
                                     <div className="time-input-group">
                                         <span className="input-label">END</span>
                                         <div className="time-picker">
-                                            <span>{slot.end}</span>
+                                            <input
+                                                type="time"
+                                                value={shift.end}
+                                                onChange={(e) => handleShiftChange(index, 'end', e.target.value)}
+                                            />
                                             <FaClock className="clock-icon" />
                                         </div>
                                     </div>
+                                    <button
+                                        className="delete-shift-btn"
+                                        title="Remove shift"
+                                        onClick={() => handleDeleteShift(index)}
+                                    >
+                                        <FaTimes />
+                                    </button>
                                 </div>
                             ))}
                         </div>
-                        <button className="add-shift-btn" onClick={addSlot}>
+                        <button className="add-shift-btn" onClick={handleAddShift}>
                             <FaPlus className="plus-icon" /> Add Break/Shift
                         </button>
                     </>
                 ) : (
                     <div className="closed-state">
                         <div className="closed-icon-container">
-                            {day === 'Weekend' ? (
-                                <p className="weekend-text">No recurring slots are currently active for Saturday and Sunday</p>
+                            {(dayOfWeek === 0 || dayOfWeek === 6) ? (
+                                <p className="weekend-text">
+                                    No recurring slots are currently active for Saturday and Sunday
+                                </p>
                             ) : (
                                 <>
-                                    <div className="office-closed-icon">
-                                        <FaBan />
-                                    </div>
+                                    <div className="office-closed-icon"><FaBan /></div>
                                     <p>OFFICE CLOSED</p>
                                 </>
                             )}
                         </div>
-                        {day === 'Weekend' && (
-                            <button className="enable-weekend-btn" onClick={toggleDay}>
+                        {(dayOfWeek === 0 || dayOfWeek === 6) && (
+                            <button className="enable-weekend-btn" onClick={handleToggle}>
                                 Enable Weekend Booking
                             </button>
                         )}

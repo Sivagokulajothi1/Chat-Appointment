@@ -78,6 +78,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
+    flex-shrink: 0;
     box-shadow: 0 4px 12px rgba(57, 223, 121, 0.2);
     transition: all 0.2s;
 }
@@ -199,6 +201,44 @@
     gap: 1.5rem;
 }
 
+/* ── List view ───────────────────────────────────────────────────────────── */
+.templates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.templates-list .template-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 1.5rem;
+    min-height: unset;
+}
+
+.templates-list .card-top {
+    margin-bottom: 0;
+}
+
+.templates-list .card-body {
+    border-top: none;
+    padding-top: 0;
+}
+
+.templates-list .card-footer {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.templates-list .add-template-card {
+    min-height: 64px;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+
 .add-template-card {
     border: 2px dashed #e2e8f0;
     border-radius: 12px;
@@ -231,17 +271,17 @@
     .whatsapp-stats-row {
         grid-template-columns: 1fr;
     }
-    
+
     .templates-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .header-left {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
     }
-    
+
     .search-bar {
         width: 100%;
     }

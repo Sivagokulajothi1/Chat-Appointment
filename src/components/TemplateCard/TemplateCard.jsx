@@ -2,17 +2,21 @@ import React, { useState } from 'react';
 import { FaEdit, FaCopy, FaTrash } from 'react-icons/fa';
 import './TemplateCard.css';
 
-const TemplateCard = ({ template }) => {
-    // API returns is_active (bool); local toggle overrides it visually
+/**
+ * Props:
+ *  template  - the template object from API
+ *  onEdit    - () => void
+ *  onDelete  - () => void
+ *  onCopy    - () => void
+ */
+const TemplateCard = ({ template, onEdit, onDelete, onCopy }) => {
     const [isActive, setIsActive] = useState(
         template.is_active !== undefined ? template.is_active : template.status === 'ACTIVE'
     );
 
-    const toggleStatus = () => {
-        setIsActive(!isActive);
-    };
+    const toggleStatus = () => setIsActive(!isActive);
 
-    // Map API fields → display fields
+    // Map API fields → display
     const title = template.name || template.key || '—';
     const category = template.category || '—';
     const preview = template.preview || template.content || '';
@@ -31,7 +35,11 @@ const TemplateCard = ({ template }) => {
                 <div className="template-header">
                     <div className="title-row">
                         <h3>{title}</h3>
-                        <span className={`status-badge ${isActive ? 'active' : 'draft'}`} onClick={toggleStatus}>
+                        <span
+                            className={`status-badge ${isActive ? 'active' : 'draft'}`}
+                            onClick={toggleStatus}
+                            title="Toggle status (local only)"
+                        >
                             {isActive ? 'ACTIVE' : 'DRAFT'}
                         </span>
                     </div>
@@ -40,9 +48,7 @@ const TemplateCard = ({ template }) => {
             </div>
 
             <div className="card-body">
-                <div className="message-preview">
-                    {preview}
-                </div>
+                <div className="message-preview">{preview}</div>
             </div>
 
             <div className="card-footer">
@@ -50,9 +56,27 @@ const TemplateCard = ({ template }) => {
                     <span className="last-edited">{lastEdited}</span>
                 </div>
                 <div className="footer-actions">
-                    <button className="icon-btn" title="Edit"><FaEdit /></button>
-                    <button className="icon-btn" title="Copy"><FaCopy /></button>
-                    <button className="icon-btn delete" title="Delete"><FaTrash /></button>
+                    <button
+                        className="icon-btn"
+                        title="Edit"
+                        onClick={onEdit}
+                    >
+                        <FaEdit />
+                    </button>
+                    <button
+                        className="icon-btn"
+                        title="Copy content"
+                        onClick={onCopy}
+                    >
+                        <FaCopy />
+                    </button>
+                    <button
+                        className="icon-btn delete"
+                        title="Delete"
+                        onClick={onDelete}
+                    >
+                        <FaTrash />
+                    </button>
                 </div>
             </div>
         </div>

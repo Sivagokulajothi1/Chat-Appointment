@@ -1,82 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaFilter, FaDownload, FaEllipsisH } from 'react-icons/fa';
+import { getDashboardAppointments } from '../../services/dashboard.service';
 import './AppointmentMonitor.css';
 
+// Map status string → CSS class + display label
+const STATUS_MAP = {
+    slot_booked: { label: 'SLOT BOOKED', cls: 'status-booked' },
+    confirmed: { label: 'CONFIRMED', cls: 'status-confirmed' },
+    cancelled: { label: 'CANCELLED', cls: 'status-cancelled' },
+    rescheduled: { label: 'RESCHEDULED', cls: 'status-rescheduled' },
+};
+
+// Avatar background colours based on initials
+const AVATAR_COLORS = [
+    '#E8FBF1', '#E8F7EE', '#FDECEC', '#F3E8FF',
+    '#FEF3C7', '#DBEAFE', '#FFE4E6', '#D1FAE5',
+];
+
+const getAvatarColor = (name = '') => {
+    const idx = name.charCodeAt(0) % AVATAR_COLORS.length;
+    return AVATAR_COLORS[idx];
+};
+
 const AppointmentMonitor = () => {
-    const [appointments, setAppointments] = useState([
-        {
-            id: 1,
-            patientName: 'Siva',
-            phone: '+91 90031 23451',
-            doctor: 'Dr. Mithun',
-            status: 'SLOT BOOKED',
-            statusClass: 'status-booked',
-            initials: 'S',
-            initialBg: '#E8FBF1'
-        },
-        {
-            id: 2,
-            patientName: 'A Vinothini',
-            phone: '+91 90031 23452',
-            doctor: 'Dr. Mithun',
-            status: 'CONFIRMED',
-            statusClass: 'status-confirmed',
-            initials: 'AV',
-            initialBg: '#E8F7EE'
+    const [appointments, setAppointments] = useState([]);
+    const [total, setTotal] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-        },
-        {
-            id: 3,
-            patientName: 'A vinothini',
-            phone: '+91 94451 23453',
-            doctor: 'Dr. Kavitha',
-            status: 'CANCELLED',
-            statusClass: 'status-cancelled',
-            initials: 'AV',
-            initialBg: '#FDECEC'
-        },
-        {
-            id: 4,
-            patientName: 'Sarvesh.S',
-            phone: '+91 98401 23454',
-            doctor: 'Dr. Gokula Krishan',
-            status: 'RESCHEDULED',
-            statusClass: 'status-rescheduled',
-            initials: 'SS',
-            initialBg: '#F3E8FF'
-        },
-        {
-            id: 5,
-            patientName: 'Priya Dharshini',
-            phone: '+91 90421 23455',
-            doctor: 'Dr. Mithun',
-            status: 'CONFIRMED',
-            statusClass: 'status-confirmed',
-            initials: 'PD',
-            initialBg: '#E8F7EE'
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const res = await getDashboardAppointments({ page: 1, limit: 20 });
+            setAppointments(res.data.appointments || []);
+            setTotal(res.data.total || 0);
+        } catch (err) {
+            setError('Failed to load appointments');
+        } finally {
+            setLoading(false);
         }
-    ]);
-
-    const handleAction = (id) => {
-        // Toggle status for demo
-        setAppointments(appointments.map(apt => {
-            if (apt.id === id) {
-                const nextStatus = apt.status === 'CONFIRMED' ? 'CANCELLED' : 'CONFIRMED';
-                return {
-                    ...apt,
-                    status: nextStatus,
-                    statusClass: nextStatus === 'CONFIRMED' ? 'status-confirmed' : 'status-cancelled'
-                };
-            }
-            return apt;
-        }));
     };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     return (
         <div className="appointment-monitor">
             <div className="monitor-header">
                 <div className="header-title">
-                    <h3>Appointment Monitoring <span className="total-badge">{appointments.length} TOTAL</span></h3>
+                    <h3>
+                        Appointment Monitoring{' '}
+                        <span className="total-badge">{total} TOTAL</span>
+                    </h3>
                 </div>
                 <div className="header-actions">
                     <button className="action-btn">
@@ -89,46 +65,72 @@ const AppointmentMonitor = () => {
             </div>
 
             <div className="table-container">
-                <table className="monitor-table">
-                    <thead>
-                        <tr>
-                            <th>PATIENT DETAILS</th>
-                            <th>ASSIGNED DOCTOR</th>
-                            <th>STATUS</th>
-                            <th>ACTIONS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {appointments.map((apt) => (
-                            <tr key={apt.id}>
-                                <td>
-                                    <div className="patient-info">
-                                        <div className="patient-avatar" style={{ backgroundColor: apt.initialBg }}>
-                                            {apt.initials}
-                                        </div>
-                                        <div className="patient-details">
-                                            <div className="patient-name">{apt.patientName}</div>
-                                            <div className="patient-phone">{apt.phone}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="doctor-name">{apt.doctor}</div>
-                                </td>
-                                <td>
-                                    <span className={`status-chip ${apt.statusClass}`}>
-                                        {apt.status}
-                                    </span>
-                                </td>
-                                <td>
-                                    <button className="more-btn" onClick={() => handleAction(apt.id)}>
-                                        <FaEllipsisH />
-                                    </button>
-                                </td>
+                {loading && <p style={{ padding: '16px' }}>Loading...</p>}
+                {error && <p style={{ padding: '16px', color: 'red' }}>{error}</p>}
+
+                {!loading && !error && (
+                    <table className="monitor-table">
+                        <thead>
+                            <tr>
+                                <th>PATIENT DETAILS</th>
+                                <th>ASSIGNED DOCTOR</th>
+                                <th>STATUS</th>
+                                <th>ACTIONS</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {appointments.map((apt) => {
+                                const statusInfo = STATUS_MAP[apt.status] || {
+                                    label: apt.status?.toUpperCase() || '—',
+                                    cls: 'status-booked',
+                                };
+                                const avatarBg = getAvatarColor(apt.patientName);
+
+                                return (
+                                    <tr key={apt.id}>
+                                        <td>
+                                            <div className="patient-info">
+                                                <div
+                                                    className="patient-avatar"
+                                                    style={{ backgroundColor: avatarBg }}
+                                                >
+                                                    {apt.initials}
+                                                </div>
+                                                <div className="patient-details">
+                                                    <div className="patient-name">{apt.patientName}</div>
+                                                    <div className="patient-phone">{apt.patientPhone}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="doctor-name">
+                                                {apt.doctorName ? `Dr. ${apt.doctorName}` : '—'}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={`status-chip ${statusInfo.cls}`}>
+                                                {statusInfo.label}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button className="more-btn">
+                                                <FaEllipsisH />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+
+                            {appointments.length === 0 && (
+                                <tr>
+                                    <td colSpan={4} style={{ textAlign: 'center', padding: 20 }}>
+                                        No appointments found
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );

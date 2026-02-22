@@ -1,42 +1,53 @@
+import React, { useState, useEffect } from 'react';
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from "recharts";
-
-const data = [
-  { day: "Mon", value: 20 },
-  { day: "Tue", value: 30 },
-  { day: "Wed", value: 25 },
-  { day: "Thu", value: 45 },
-  { day: "Fri", value: 35 },
-  { day: "Sat", value: 60 },
-  { day: "Sun", value: 50 },
-];
+import { getAppointmentTrend } from '../../services/dashboard.service';
 
 const AppointmentTrend = () => {
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTrend = async () => {
+      try {
+        const res = await getAppointmentTrend();
+        const { labels, data } = res.data;
+        const formatted = labels.map((day, i) => ({ day, value: data[i] || 0 }));
+        setChartData(formatted);
+      } catch (err) {
+        // fallback empty
+        setChartData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTrend();
+  }, []);
+
   return (
     <div className="chart-card">
       <h3>Appointment Trend</h3>
       <p className="sub">Weekly overview</p>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
-          <XAxis dataKey="day" />
-          <YAxis />
-          <Tooltip />
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke="#14b8a6"
-            strokeWidth={3}
-            dot={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      {loading ? (
+        <p style={{ padding: 16 }}>Loading chart...</p>
+      ) : (
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={chartData}>
+            <XAxis dataKey="day" />
+            <YAxis allowDecimals={false} />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="#14b8a6"
+              strokeWidth={3}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      )}
     </div>
   );
 };

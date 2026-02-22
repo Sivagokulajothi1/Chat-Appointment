@@ -248,6 +248,85 @@
     font-weight: 700;
 }
 
+/* ── Doctor selector (dropdown + All button) ─────────────────────────────── */
+.schedule-active-label {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: #6b7280;
+    margin-left: 0.75rem;
+}
+
+.doctor-selector-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.doctor-select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.doctor-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: #ffffff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 0.55rem 2.4rem 0.55rem 0.9rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    min-width: 190px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.doctor-select:focus {
+    border-color: #39df79;
+    box-shadow: 0 0 0 3px rgba(57, 223, 121, 0.15);
+}
+
+.select-arrow {
+    position: absolute;
+    right: 0.75rem;
+    pointer-events: none;
+    color: #9ca3af;
+    font-size: 0.85rem;
+}
+
+.all-doctors-btn {
+    padding: 0.55rem 1.1rem;
+    border-radius: 10px;
+    border: 1.5px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+
+.all-doctors-btn:hover {
+    border-color: #39df79;
+    color: #16a34a;
+    background: #f0fdf4;
+}
+
+.all-doctors-btn.active {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+    box-shadow: 0 2px 8px rgba(17, 24, 39, 0.18);
+}
+
 .schedule-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -264,7 +343,7 @@
     .config-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .schedule-grid {
         grid-template-columns: 1fr;
     }
