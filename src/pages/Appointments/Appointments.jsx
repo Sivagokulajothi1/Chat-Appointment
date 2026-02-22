@@ -1,42 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSearch, FaCalendarAlt, FaClock, FaTimes, FaCalendarCheck, FaPlus, FaTrash, FaFilter, FaDownload } from 'react-icons/fa';
 import CustomTable from '../../components/CustomTable/CustomTable';
 import CustomModal from '../../components/CustomModal/CustomModal';
+import {
+    getAppointments,
+    bookAppointment,
+    confirmAppointment,
+    cancelAppointment,
+} from '../../services/appointments.service';
 import './Appointments.css';
 
 const Appointments = () => {
     const [activeTab, setActiveTab] = useState('All Appointments');
     const [searchQuery, setSearchQuery] = useState('');
-    const [appointments, setAppointments] = useState([
-        {
-            id: 1,
-            patient: { name: 'a.vinothini', avatar:'' },
-            doctor: { name: 'Dr. kavitha', dept: 'Cardiology' },
-            dateTime: { date: 'Oct 24, 2023', time: '10:30 AM' },
-            status: 'Confirmed'
-        },
-        {
-            id: 2,
-            patient: { name: 'Haripriya', avatar: '' },
-            doctor: { name: 'Dr. Mithin', dept: 'Neurology' },
-            dateTime: { date: 'Oct 24, 2023', time: '11:45 AM' },
-            status: 'Pending'
-        },
-        {
-            id: 3,
-            patient: { name: 'Naveen', avatar: '' },
-            doctor: { name: 'Dr.gokula kirshan', dept: 'Internal Medicine' },
-            dateTime: { date: 'Oct 24, 2023', time: '02:15 PM' },
-            status: 'Confirmed'
-        },
-        {
-            id: 4,
-            patient: { name: 'Sathi', avatar: ' ' },
-            doctor: { name: 'Dr. Mithin', dept: 'Cardiology' },
-            dateTime: { date: 'Oct 24, 2023', time: '03:30 PM' },
-            status: 'Cancelled'
+    const [appointments, setAppointments] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    // ✅ Load appointments from API on mount
+    useEffect(() => {
+        fetchAppointments();
+    }, []);
+
+    const fetchAppointments = async () => {
+        try {
+            setLoading(true);
+            const res = await getAppointments();
+            // API may return res.data.appointments or res.data.rows — adjust as needed
+            setAppointments(res.data.appointments || res.data.rows || res.data || []);
+        } catch (err) {
+            console.error('Failed to fetch appointments:', err);
+        } finally {
+            setLoading(false);
         }
-    ]);
+    };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -54,8 +50,19 @@ const Appointments = () => {
 
     const tabs = ['All Appointments', 'Pending', 'Confirmed', 'Cancelled'];
 
-    const handleStatusChange = (id, newStatus) => {
-        setAppointments(appointments.map(apt => apt.id === id ? { ...apt, status: newStatus } : apt));
+    const handleStatusChange = async (id, newStatus) => {
+        try {
+            if (newStatus === 'Confirmed') {
+                await confirmAppointment(id);
+            } else if (newStatus === 'Cancelled') {
+                await cancelAppointment(id, { reason: 'Cancelled by admin' });
+            }
+            // Refresh list after status change
+            fetchAppointments();
+        } catch (err) {
+            console.error('Status change failed:', err);
+            alert(err?.response?.data?.message || 'Action failed');
+        }
     };
 
     const handleDelete = (id) => {
@@ -64,18 +71,24 @@ const Appointments = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const newApt = {
-            id: Date.now(),
-            patient: { name: formData.patientName, avatar: `https://i.pravatar.cc/150?u=${formData.patientName}` },
-            doctor: { name: formData.doctorName, dept: 'General' },
-            dateTime: { date: formData.date, time: formData.time },
-            status: 'Pending'
-        };
-        setAppointments([...appointments, newApt]);
-        setIsModalOpen(false);
-        setFormData({ patientName: '', doctorName: 'Dr. Emily Blunt', date: '', time: '' });
+        try {
+            const payload = {
+                patientName: formData.patientName,
+                doctorName: formData.doctorName,
+                date: formData.date,
+                time: formData.time,
+            };
+            await bookAppointment(payload);
+            // Refresh list after booking
+            fetchAppointments();
+            setIsModalOpen(false);
+            setFormData({ patientName: '', doctorName: 'Dr. Emily Blunt', date: '', time: '' });
+        } catch (err) {
+            console.error('Booking failed:', err);
+            alert(err?.response?.data?.message || 'Booking failed');
+        }
     };
 
     const filteredAppointments = appointments.filter(apt => {

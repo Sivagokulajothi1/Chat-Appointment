@@ -1,15 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSlidersH, FaHistory, FaCalendarAlt } from 'react-icons/fa';
 import DayScheduleCard from '../../components/DayScheduleCard/DayScheduleCard';
 import './Slots.css';
+import CustomMultiSelect from '../../components/CustomMultiSelect/CustomMultiSelect';
+import { getDoctorsOnly } from '../../services/doctorSettings.service';
+import { getAvailableSlots } from '../../services/slots.service';
 
 const Slots = () => {
-    const [slotDuration, setSlotDuration] = useState('30m');
+    const [slotDuration, setSlotDuration] = useState('30 min');
     const [concurrentBookings, setConcurrentBookings] = useState(1);
     const [bufferTime, setBufferTime] = useState(15);
-
+    const [selectedDoctors, setSelectedDoctors] = useState([]);
+    const [doctorOptions, setDoctorOptions] = useState([]);
+    const [selectedDate, setSelectedDate] = useState('');
+    const [availableSlots, setAvailableSlots] = useState([]);
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Weekend'];
 
+    useEffect(() => {
+        const fetchDoctors = async () => {
+            try {
+                const res = await getDoctorsOnly();
+                const doctors = Array.isArray(res.data) ? res.data : (res.data.doctors || res.data.rows || []);
+                setDoctorOptions(
+                    doctors.map((doc) => ({ value: String(doc.id), label: doc.name }))
+                );
+            } catch (err) {
+                console.error('Failed to fetch doctors:', err);
+            }
+        };
+        fetchDoctors();
+        fetchSlots();
+    }, []);
+
+    // Fetch available slots whenever a doctor or date is selected
+    useEffect(() => {
+        if (selectedDoctors.length === 0 || !selectedDate) return;
+        fetchSlots();
+    }, [selectedDoctors, selectedDate]);
+
+    const fetchSlots = async () => {
+        try {
+            const res = await getAvailableSlots();
+            setAvailableSlots(res.data.slots || []);
+        } catch (err) {
+            console.error('Failed to fetch available slots:', err);
+        }
+    };
     return (
         <div className="slot-config-page">
             <div className="slot-header-row">
@@ -35,7 +71,7 @@ const Slots = () => {
                         <div className="rule-group">
                             <label>SLOT DURATION</label>
                             <div className="duration-options">
-                                {['30m', '45m', '60m'].map(dur => (
+                                {['15 min', '30 min', '45 min', '60 min'].map(dur => (
                                     <button
                                         key={dur}
                                         className={`duration-btn ${slotDuration === dur ? 'active' : ''}`}
@@ -100,6 +136,15 @@ const Slots = () => {
                 <div className="section-title">
                     <FaHistory className="section-icon" />
                     <h2>Weekly Schedule</h2>
+                    <div style={{ width: "260px" }}>
+                        <CustomMultiSelect
+                            label="Doctor"
+                            options={doctorOptions}
+                            value={selectedDoctors}
+                            onChange={setSelectedDoctors}
+                            placeholder="Select doctors"
+                        />
+                    </div>
                 </div>
 
                 <div className="schedule-grid">

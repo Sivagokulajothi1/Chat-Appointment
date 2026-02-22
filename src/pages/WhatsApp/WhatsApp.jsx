@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaPlus, FaSearch, FaBell, FaThLarge, FaList } from 'react-icons/fa';
 import TemplateCard from '../../components/TemplateCard/TemplateCard';
 import CustomModal from '../../components/CustomModal/CustomModal';
+import {
+    getTemplates,
+    createTemplate,
+    updateTemplate,
+    deleteTemplate,
+} from '../../services/templates.service';
 import './WhatsApp.css';
 
 const WhatsApp = () => {
@@ -14,56 +20,27 @@ const WhatsApp = () => {
         message: '',
         icon: '✨'
     });
-    const [templates, setTemplates] = useState([
-        {
-            id: 1,
-            name: 'Welcome Message',
-            category: 'ONBOARDING',
-            status: 'ACTIVE',
-            icon: '👋',
-            bgColor: '#e1fdf0',
-            preview: (
-                <>Hi <strong>patient_name</strong>, welcome to <strong>clinic_name</strong>! We are thrilled to have you. Your health journey starts here. 🌿</>
-            ),
-            lastEdited: 'Last edited: Oct 24, 2023'
-        },
-        {
-            id: 2,
-            name: 'Appointment Confirmation',
-            category: 'SCHEDULING',
-            status: 'ACTIVE',
-            icon: '📅',
-            bgColor: '#eef2ff',
-            preview: (
-                <>Confirmed! Your appointment is set for <strong>date</strong> at <strong>time</strong>. We look forward to seeing you. ✅</>
-            ),
-            lastEdited: 'Last edited: Oct 20, 2023'
-        },
-        {
-            id: 3,
-            name: 'Reminder',
-            category: 'ALERTS',
-            status: 'ACTIVE',
-            icon: '⏰',
-            bgColor: '#fffbeb',
-            preview: (
-                <>Reminder: You have an appointment tomorrow at <strong>time</strong>. Please arrive 10 mins early for check-in. ⏰</>
-            ),
-            lastEdited: 'Last edited: Oct 15, 2023'
-        },
-        {
-            id: 4,
-            name: 'Cancellation',
-            category: 'SCHEDULING',
-            status: 'DRAFT',
-            icon: '📅',
-            bgColor: '#fef2f2',
-            preview: (
-                <>Your appointment on <strong>date</strong> has been cancelled. Reach out to reschedule if needed.</>
-            ),
-            lastEdited: 'Pending review...'
+    const [templates, setTemplates] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    // ✅ Load templates from API on mount
+    useEffect(() => {
+        fetchTemplates();
+    }, []);
+
+    const fetchTemplates = async () => {
+        try {
+            setLoading(true);
+            const res = await getTemplates();
+            const data = res.data;
+            const list = Array.isArray(data) ? data : (data.templates || data.rows || []);
+            setTemplates(list);
+        } catch (err) {
+            console.error('Failed to fetch templates:', err);
+        } finally {
+            setLoading(false);
         }
-    ]);
+    };
 
     const stats = [
         { label: 'TOTAL TEMPLATES', value: '12', change: '~8%', color: '#39df79' },
@@ -74,8 +51,11 @@ const WhatsApp = () => {
     const tabs = ['All Templates', 'Onboarding', 'Scheduling', 'Reminders'];
 
     const filteredTemplates = templates.filter(template => {
-        const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesTab = activeTab === 'All Templates' || template.category.toLowerCase() === activeTab.toLowerCase();
+        const key = (template.key || '').toLowerCase();
+        const content = (template.content || '').toLowerCase();
+        const query = searchQuery.toLowerCase();
+        const matchesSearch = key.includes(query) || content.includes(query);
+        const matchesTab = activeTab === 'All Templates' || key.includes(activeTab.toLowerCase());
         return matchesSearch && matchesTab;
     });
 
@@ -93,27 +73,36 @@ const WhatsApp = () => {
         setIsModalOpen(false);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const bgColors = {
-            'ONBOARDING': '#e1fdf0',
-            'SCHEDULING': '#eef2ff',
-            'ALERTS': '#fffbeb',
-            'REMINDERS': '#fef3c7'
-        };
+        try {
+            const payload = {
+                name: formData.name,
+                category: formData.category,
+                message: formData.message,
+                icon: formData.icon,
+                status: 'DRAFT',
+            };
+            await createTemplate(payload);
+            // Refresh list after creation
+            fetchTemplates();
+            handleCloseModal();
+        } catch (err) {
+            console.error('Create template failed:', err);
+            alert(err?.response?.data?.message || 'Failed to create template');
+        }
+    };
 
-        const newTemplate = {
-            id: Date.now(),
-            name: formData.name,
-            category: formData.category,
-            status: 'DRAFT',
-            icon: formData.icon,
-            bgColor: bgColors[formData.category] || '#f3f4f6',
-            preview: <>{formData.message}</>,
-            lastEdited: `Created: ${new Date().toLocaleDateString()}`
-        };
-        setTemplates([...templates, newTemplate]);
-        handleCloseModal();
+    // ✅ Delete a template
+    const handleDeleteTemplate = async (id) => {
+        if (!window.confirm('Delete this template?')) return;
+        try {
+            await deleteTemplate(id);
+            fetchTemplates();
+        } catch (err) {
+            console.error('Delete failed:', err);
+            alert(err?.response?.data?.message || 'Delete failed');
+        }
     };
 
     return (

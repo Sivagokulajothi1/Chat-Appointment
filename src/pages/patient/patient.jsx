@@ -11,6 +11,8 @@ const Patient = () => {
     const { showToast } = useToast();
 
     const [patient, setPatient] = useState([]);
+    const [viewOpen, setViewOpen] = useState(false);
+    const [viewUser, setViewUser] = useState(null);
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -184,67 +186,59 @@ const Patient = () => {
         window.URL.revokeObjectURL(url);
     };
 
+    const openView = (user) => {
+        setViewUser(user);
+        setViewOpen(true);
+    };
+
+    const closeView = () => {
+        setViewOpen(false);
+        setViewUser(null);
+    };
+
     const renderRow = (user) => {
+        const status = user?.is_active ? "Active" : "Inactive";
+
         const initials = user?.name
-            ? user.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")
-                .toUpperCase()
-            : "U";
+            ? user.name.split(" ").map(n => n[0]).join("").toUpperCase()
+            : "";
 
         const color = "#6366f1";
 
         return (
-            <>
-                {/* 1️⃣ PATIENT NAME */}
+            <tr
+                key={user?.id}
+                onDoubleClick={() => openView(user)} 
+                style={{ cursor: "pointer" }}
+            >
                 <td>
                     <div className="user-info-cell">
-                        <div
-                            className="user-avatar"
-                            style={{ backgroundColor: color }}
-                        >
+                        <div className="user-avatar" style={{ backgroundColor: color }}>
                             {user?.Profile_image ? (
                                 <img
                                     src={user.Profile_image}
-                                    alt={user?.name || "User"}
+                                    alt={user?.name}
                                     className="avatar-img"
                                 />
                             ) : (
                                 <span>{initials}</span>
                             )}
                         </div>
-
-                        <span className="user-name-text">
-                            {user?.name ?? "-"}
-                        </span>
+                        <span className="user-name-text">{user?.name || "-"}</span>
                     </div>
                 </td>
 
-                {/* 2️⃣ PHONE */}
-                <td>{user?.phone ?? "-"}</td>
+                <td>{user?.phone || "-"}</td>
+                <td>{user?.email || "-"}</td>
+                <td>{user?.dob || "-"}</td>
+                <td>{user?.gender    || "-"}</td>
 
-                {/* 3️⃣ EMAIL */}
-                <td>{user?.email ?? "-"}</td>
-
-                {/* 4️⃣ DOB */}
-                <td>
-                    {user?.dob
-                        ? new Date(user.dob).toLocaleDateString()
-                        : "-"}
-                </td>
-
-                {/* 5️⃣ GENDER */}
-                <td>{user?.gender ?? "-"}</td>
-
-                {/* 6️⃣ ACTIONS */}
                 <td>
                     <div className="action-buttons">
                         <button
                             className="icon-btn-small"
-                            title="Edit"
                             onClick={(e) => {
-                                e.stopPropagation();
+                                e.stopPropagation(); // prevent double click trigger
                                 handleOpenModal(user);
                             }}
                         >
@@ -253,20 +247,18 @@ const Patient = () => {
 
                         <button
                             className="icon-btn-small delete"
-                            title="Delete"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                handleDelete(user?.id);
+                                handleDelete(user.id);
                             }}
                         >
                             <FaTrash />
                         </button>
                     </div>
                 </td>
-            </>
+            </tr>
         );
     };
-
 
 
     return (
